@@ -1,0 +1,48 @@
+import 'enums.dart';
+import 'daily_workout.dart';
+
+class ProgramWeek {
+  final int weekNumber;
+  final Phase phase;
+  final String intensityRange;
+  final int targetRPEMin;
+  final int targetRPEMax;
+  final List<DailyWorkout> dailyWorkouts;
+  final String notes;
+
+  const ProgramWeek({
+    required this.weekNumber,
+    required this.phase,
+    required this.intensityRange,
+    required this.targetRPEMin,
+    required this.targetRPEMax,
+    required this.dailyWorkouts,
+    this.notes = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'weekNumber': weekNumber,
+        'phase': phase.name,
+        'intensityRange': intensityRange,
+        'targetRPEMin': targetRPEMin,
+        'targetRPEMax': targetRPEMax,
+        'dailyWorkouts': dailyWorkouts.map((d) => d.toJson()).toList(),
+        'notes': notes,
+      };
+
+  factory ProgramWeek.fromJson(Map<String, dynamic> json) => ProgramWeek(
+        weekNumber: json['weekNumber'] as int,
+        phase: Phase.values.firstWhere((p) => p.name == json['phase']),
+        intensityRange: json['intensityRange'] as String,
+        targetRPEMin: json['targetRPEMin'] as int,
+        targetRPEMax: json['targetRPEMax'] as int,
+        dailyWorkouts: (json['dailyWorkouts'] as List)
+            .map((d) => DailyWorkout.fromJson(d as Map<String, dynamic>))
+            .toList(),
+        notes: json['notes'] as String? ?? '',
+      );
+
+  List<int> get targetRPE => [targetRPEMin, targetRPEMax];
+  
+  int get trainingDays => dailyWorkouts.where((w) => !w.isRestDay).length;
+}

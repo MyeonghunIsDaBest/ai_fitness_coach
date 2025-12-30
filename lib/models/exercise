@@ -1,0 +1,89 @@
+class Exercise {
+  final String name;
+  final int? sets;
+  final String reps;
+  final int? repsMin;
+  final int? repsMax;
+  final double? intensityPercent;
+  final String intensityDisplay;
+  final bool isMain;
+  final String notes;
+
+  const Exercise({
+    required this.name,
+    this.sets,
+    required this.reps,
+    this.repsMin,
+    this.repsMax,
+    this.intensityPercent,
+    this.intensityDisplay = '',
+    this.isMain = false,
+    this.notes = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'sets': sets,
+        'reps': reps,
+        'repsMin': repsMin,
+        'repsMax': repsMax,
+        'intensityPercent': intensityPercent,
+        'intensityDisplay': intensityDisplay,
+        'isMain': isMain,
+        'notes': notes,
+      };
+
+  factory Exercise.fromJson(Map<String, dynamic> json) => Exercise(
+        name: json['name'] as String,
+        sets: json['sets'] as int?,
+        reps: json['reps'] as String,
+        repsMin: json['repsMin'] as int?,
+        repsMax: json['repsMax'] as int?,
+        intensityPercent: json['intensityPercent'] as double?,
+        intensityDisplay: json['intensityDisplay'] as String? ?? '',
+        isMain: json['isMain'] as bool? ?? false,
+        notes: json['notes'] as String? ?? '',
+      );
+
+  bool get isRest => sets == null || sets == 0;
+
+  Exercise copyWith({
+    String? name,
+    int? sets,
+    String? reps,
+    int? repsMin,
+    int? repsMax,
+    double? intensityPercent,
+    String? intensityDisplay,
+    bool? isMain,
+    String? notes,
+  }) {
+    return Exercise(
+      name: name ?? this.name,
+      sets: sets ?? this.sets,
+      reps: reps ?? this.reps,
+      repsMin: repsMin ?? this.repsMin,
+      repsMax: repsMax ?? this.repsMax,
+      intensityPercent: intensityPercent ?? this.intensityPercent,
+      intensityDisplay: intensityDisplay ?? this.intensityDisplay,
+      isMain: isMain ?? this.isMain,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  double? get estimatedVolume {
+    if (isRest) return null;
+    final s = sets ?? 0;
+    double? avgReps;
+    if (repsMin != null && repsMax != null) {
+      avgReps = (repsMin + repsMax) / 2.0;
+    } else {
+      final parsed = int.tryParse(reps.replaceAll(RegExp(r'[^0-9]'), ''));
+      if (parsed != null && parsed > 0) {
+        avgReps = parsed.toDouble();
+      }
+    }
+    if (avgReps == null) return null;
+    return s * avgReps;
+  }
+}
