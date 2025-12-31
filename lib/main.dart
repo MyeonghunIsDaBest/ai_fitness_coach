@@ -1,7 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'screens/food_log_screen.dart';
+import 'features/program_selection/program_selection_screen.dart';
+import 'features/workout/week_dashboard_screen.dart';
+import 'features/workout/workout_logger_screen.dart';
+import 'lib/core/enums/sports.dart';
+import 'core/enums/phase.dart';
+import 'core/enums/lift_type.dart';
+import 'core/enums/week_type.dart';
+import 'core/enums/rpe_feedback.dart';
+import 'core/utils/rpe_thresholds.dart';
+import 'core/utils/rpe_math.dart';
+import 'core/failures/failure.dart';
 
+// In routes:
+'/program-selection': (context) => ProgramSelectionScreen(),
+'/week-dashboard': (context) => WeekDashboardScreen(),
+'/workout-logger': (context) => WorkoutLoggerScreen(),
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
