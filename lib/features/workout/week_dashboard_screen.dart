@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import '../../domain/models/workout_program.dart';
 import '../../domain/models/program_week.dart';
 import '../../domain/models/daily_workout.dart';
+import '../../services/workout_session_service.dart';
+import '../../services/rpe_feedback_service.dart';
+import '../workout/workout_logger_screen.dart';
 
 /// Enhanced Week dashboard with progress tracking and better UX
-/// Save as: lib/features/workout/week_dashboard_screen.dart
+/// NOW WITH: Service injection for workout logging
 class WeekDashboardScreen extends StatefulWidget {
   final WorkoutProgram? program;
+  final WorkoutSessionService sessionService;
+  final RPEFeedbackService rpeService;
 
-  const WeekDashboardScreen({Key? key, this.program}) : super(key: key);
+  const WeekDashboardScreen({
+    Key? key,
+    this.program,
+    required this.sessionService,
+    required this.rpeService,
+  }) : super(key: key);
 
   @override
   State<WeekDashboardScreen> createState() => _WeekDashboardScreenState();
@@ -20,10 +30,10 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   bool isLoading = false;
   String? errorMessage;
 
-  // Track completed workouts (in production, this should come from a database/state management)
+  // Track completed workouts (in production, load from storage)
   Set<String> completedWorkoutIds = {};
 
-  // Track current week start date (in production, this should be stored in user preferences)
+  // Track current week start date
   DateTime? weekStartDate;
 
   @override
@@ -42,7 +52,6 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
     });
 
     try {
-      // Simulate async data loading
       await Future.delayed(const Duration(milliseconds: 300));
 
       setState(() {
@@ -58,18 +67,13 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   }
 
   Future<void> _loadUserProgress() async {
-    // In production: Load from local storage or API
-    // For now, simulate with some sample data
     setState(() {
       completedWorkoutIds = {};
-      // Calculate week start date (assuming program started on a Monday)
       weekStartDate = _getWeekStartDate();
     });
   }
 
   DateTime _getWeekStartDate() {
-    // In production, this should be stored when user starts the program
-    // For now, calculate based on current date and week number
     final now = DateTime.now();
     final weeksSinceStart = currentWeekNumber - 1;
     return now
@@ -91,7 +95,6 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   }
 
   bool _isWorkoutCompleted(DailyWorkout workout) {
-    // In production, check against actual completion data
     return completedWorkoutIds.contains(workout.id);
   }
 
@@ -103,14 +106,11 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
         completedWorkoutIds.add(workout.id);
       }
     });
-
-    // In production: Save to database/state management
     _saveProgress();
   }
 
   Future<void> _saveProgress() async {
-    // Save to local storage or API
-    // TODO: Implement actual persistence
+    // TODO: Implement actual persistence via repository
   }
 
   int get completedWorkoutsCount {
@@ -130,8 +130,7 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   }
 
   bool get isCurrentWeek {
-    // In production, compare against actual program start date
-    return currentWeekNumber == 1; // Simplified for now
+    return currentWeekNumber == 1; // Simplified
   }
 
   @override
@@ -723,16 +722,7 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   Widget _buildTrainingDayContent(
       DailyWorkout workout, DateTime? date, bool isCompleted) {
     return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/workout-logger',
-          arguments: workout,
-        ).then((_) {
-          // Refresh progress when returning from workout
-          _loadUserProgress();
-        });
-      },
+      onTap: () => _startWorkout(workout),
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -811,6 +801,27 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
         ),
       ),
     );
+  }
+
+  /// ✅ NEW: Navigate to workout logger with services
+  void _startWorkout(DailyWorkout workout) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkoutLoggerScreen(
+          workout: workout,
+          programId: widget.program!.id,
+          weekNumber: currentWeekNumber,
+          targetRPEMin: currentWeek!.targetRPEMin,
+          targetRPEMax: currentWeek!.targetRPEMax,
+          sessionService: widget.sessionService,
+          rpeService: widget.rpeService,
+        ),
+      ),
+    ).then((_) {
+      // Refresh progress when returning from workout
+      _loadUserProgress();
+    });
   }
 
   void _showProgramInfo() {
