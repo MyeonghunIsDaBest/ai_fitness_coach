@@ -1,5 +1,5 @@
+import '../domain/repositories/training_repository.dart';
 import '../domain/models/workout_program.dart';
-import '../core/enums/sport.dart';
 import '../data/program_templates.dart';
 
 class ProgramService {
@@ -7,26 +7,18 @@ class ProgramService {
   factory ProgramService() => _instance;
   ProgramService._internal();
 
-  bool testMode = true;
+  late TrainingRepository _repository;
 
-  List<WorkoutProgram> getAllPrograms() {
+  void setRepository(TrainingRepository repository) {
+    _repository = repository;
+  }
+
+  Future<List<WorkoutProgram>> getAvailablePrograms() async {
     return ProgramTemplates.getAllTemplates();
   }
 
-  WorkoutProgram? getProgramById(String id) {
-    try {
-      return getAllPrograms().firstWhere((p) => p.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  WorkoutProgram? getProgramBySport(Sport sport) {
-    try {
-      return getAllPrograms().firstWhere((p) => p.sport == sport);
-    } catch (e) {
-      return null;
-    }
+  Future<void> selectProgram(WorkoutProgram program) async {
+    await _repository.saveProgram(program);
+    await _repository.setActiveProgram(program.id);
   }
 }
-

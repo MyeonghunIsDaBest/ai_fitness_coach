@@ -57,7 +57,8 @@ class Exercise extends Equatable {
       targetRPEMin: targetRPEMin,
       targetRPEMax: targetRPEMax,
       restSeconds: restSeconds,
-      intensityDisplay: 'RPE ${targetRPEMin.toStringAsFixed(1)}-${targetRPEMax.toStringAsFixed(1)}',
+      intensityDisplay:
+          'RPE ${targetRPEMin.toStringAsFixed(1)}-${targetRPEMax.toStringAsFixed(1)}',
       formCues: formCues ?? [],
       order: order,
     );
@@ -163,13 +164,68 @@ class Exercise extends Equatable {
         sets > 0 &&
         reps > 0 &&
         restSeconds >= 0 &&
-        (targetRPEMin == null || (targetRPEMin! >= 1.0 && targetRPEMin! <= 10.0)) &&
-        (targetRPEMax == null || (targetRPEMax! >= 1.0 && targetRPEMax! <= 10.0)) &&
-        (targetPercentage == null || (targetPercentage! > 0 && targetPercentage! <= 100));
+        (targetRPEMin == null ||
+            (targetRPEMin! >= 1.0 && targetRPEMin! <= 10.0)) &&
+        (targetRPEMax == null ||
+            (targetRPEMax! >= 1.0 && targetRPEMax! <= 10.0)) &&
+        (targetPercentage == null ||
+            (targetPercentage! > 0 && targetPercentage! <= 100));
   }
 
   static String _generateId() {
     return 'ex_${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  // ==========================================
+  // SERIALIZATION
+  // ==========================================
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'liftType': liftType.name,
+      'sets': sets,
+      'reps': reps,
+      'isMain': isMain,
+      'targetRPEMin': targetRPEMin,
+      'targetRPEMax': targetRPEMax,
+      'targetPercentage': targetPercentage,
+      'restSeconds': restSeconds,
+      'intensityDisplay': intensityDisplay,
+      'formCues': formCues,
+      'notes': notes,
+      'order': order,
+    };
+  }
+
+  /// Create from JSON
+  factory Exercise.fromJson(Map<String, dynamic> json) {
+    return Exercise(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      liftType: LiftType.values.byName(json['liftType'] as String),
+      sets: json['sets'] as int,
+      reps: json['reps'] as int,
+      isMain: json['isMain'] as bool? ?? false,
+      targetRPEMin: json['targetRPEMin'] != null
+          ? (json['targetRPEMin'] as num).toDouble()
+          : null,
+      targetRPEMax: json['targetRPEMax'] != null
+          ? (json['targetRPEMax'] as num).toDouble()
+          : null,
+      targetPercentage: json['targetPercentage'] != null
+          ? (json['targetPercentage'] as num).toDouble()
+          : null,
+      restSeconds: json['restSeconds'] as int? ?? 120,
+      intensityDisplay: json['intensityDisplay'] as String?,
+      formCues: json['formCues'] != null
+          ? List<String>.from(json['formCues'] as List)
+          : const [],
+      notes: json['notes'] as String?,
+      order: json['order'] as int? ?? 0,
+    );
   }
 
   @override

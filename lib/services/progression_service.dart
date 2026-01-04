@@ -1,25 +1,34 @@
+import '../domain/repositories/training_repository.dart';
+import '../domain/models/program_week.dart';
+import '../core/utils/rpe_math.dart';
+
 class ProgressionService {
-  Future<void> analyzeWeekCompletion({
+  final TrainingRepository _repository;
+
+  ProgressionService(this._repository);
+
+  /// Check if deload is needed based on RPE trends
+  Future<bool> shouldDeload({
     required List<WorkoutSession> sessions,
     required ProgramWeek weekData,
   }) async {
-    // Calculate average RPE for the week
-    List<double> allRPEs = [];
-    sessions.forEach((session) {
+    final allRPEs = <double>[];
+    for (final session in sessions) {
       allRPEs.addAll(session.sets.map((s) => s.rpe));
-    });
+    }
 
     final weekAvgRPE = RPEMath.calculateAverageRPE(allRPEs);
 
-    // Determine if adjustments needed for next week
+    // If consistently hitting high RPE, suggest deload
     if (RPEMath.isHighFatigue(weekAvgRPE, weekData.targetRPEMax)) {
-      // Flag for deload recommendation
-      return;
+      return true;
     }
 
+    // If recovering well, continue progression
     if (RPEMath.isRecovering(weekAvgRPE, weekData.targetRPEMin)) {
-      // Flag for load increase
-      return;
+      return false;
     }
+
+    return false;
   }
 }

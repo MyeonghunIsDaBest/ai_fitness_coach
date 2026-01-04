@@ -41,7 +41,8 @@ void main() async {
   );
 
   // Initialize services
-  final programService = ProgramService(repository);
+  final programService = ProgramService();
+  programService.setRepository(repository);
   final rpeService = RPEFeedbackService();
   final progressionService = ProgressionService(repository);
   final sessionService = WorkoutSessionService(repository);
@@ -137,9 +138,8 @@ class AIFitnessCoachApp extends StatelessWidget {
       case '/program-selection':
         return _createRoute(
           ProgramSelectionScreen(
-            programService: programService,
-          ),
-        );
+    sport: null,
+  ),
 
       // Add more routes here as needed
       // case '/workout-logger':

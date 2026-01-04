@@ -218,6 +218,59 @@ class AthleteProfile extends Equatable {
     return DateTime.now().millisecondsSinceEpoch.toString();
   }
 
+  // ==========================================
+  // SERIALIZATION
+  // ==========================================
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'sport': sport.name,
+      'experienceLevel': experienceLevel.name,
+      'bodyweight': bodyweight,
+      'bodyweightUnit': bodyweightUnit.name,
+      'maxLifts': maxLifts.map((key, value) => MapEntry(key.name, value)),
+      'weakPoints': weakPoints.map((w) => w.toJson()).toList(),
+      'injuries': injuries.map((i) => i.toJson()).toList(),
+      'preferredWorkoutDays': preferredWorkoutDays,
+      'primaryGoal': primaryGoal.name,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  /// Create from JSON
+  factory AthleteProfile.fromJson(Map<String, dynamic> json) {
+    return AthleteProfile(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      sport: Sport.values.byName(json['sport'] as String),
+      experienceLevel:
+          ExperienceLevel.values.byName(json['experienceLevel'] as String),
+      bodyweight: (json['bodyweight'] as num).toDouble(),
+      bodyweightUnit:
+          BodyweightUnit.values.byName(json['bodyweightUnit'] as String),
+      maxLifts: (json['maxLifts'] as Map<String, dynamic>).map(
+        (key, value) => MapEntry(
+          LiftType.values.byName(key),
+          (value as num).toDouble(),
+        ),
+      ),
+      weakPoints: (json['weakPoints'] as List)
+          .map((w) => WeakPoint.fromJson(w as Map<String, dynamic>))
+          .toList(),
+      injuries: (json['injuries'] as List)
+          .map((i) => Injury.fromJson(i as Map<String, dynamic>))
+          .toList(),
+      preferredWorkoutDays: json['preferredWorkoutDays'] as int,
+      primaryGoal: TrainingGoal.values.byName(json['primaryGoal'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -243,9 +296,9 @@ class AthleteProfile extends Equatable {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 // SUPPORTING ENUMS AND VALUE OBJECTS
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 
 /// Experience level of the athlete
 enum ExperienceLevel {
@@ -392,7 +445,6 @@ class WeakPoint extends Equatable {
     };
   }
 
-  /// Create from JSON
   factory WeakPoint.fromJson(Map<String, dynamic> json) {
     return WeakPoint(
       id: json['id'] as String,
@@ -477,7 +529,6 @@ class Injury extends Equatable {
     );
   }
 
-  /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -492,7 +543,6 @@ class Injury extends Equatable {
     };
   }
 
-  /// Create from JSON
   factory Injury.fromJson(Map<String, dynamic> json) {
     return Injury(
       id: json['id'] as String,
