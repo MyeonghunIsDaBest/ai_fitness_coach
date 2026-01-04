@@ -6,7 +6,6 @@ import '../domain/models/daily_workout.dart';
 import '../domain/models/exercise.dart';
 import '../core/enums/sport.dart';
 import '../core/enums/phase.dart';
-import '../core/enums/week_type.dart';
 import '../core/enums/lift_type.dart';
 
 /// Pre-built workout program templates
@@ -71,13 +70,15 @@ class ProgramTemplates {
                 ),
                 Exercise.accessory(
                   name: 'Chin-ups',
-                  liftType: LiftType.chinup,
+                  liftType: LiftType.pullUp,
                   sets: 3,
                   reps: 8,
                   order: 3,
                 ),
               ],
             ),
+            // Tuesday - Rest
+            DailyWorkout.restDay(dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
             // Wednesday
             DailyWorkout.trainingDay(
               dayId: 'wed',
@@ -114,6 +115,8 @@ class ProgramTemplates {
                 ),
               ],
             ),
+            // Thursday - Rest
+            DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
             // Friday
             DailyWorkout.trainingDay(
               dayId: 'fri',
@@ -141,16 +144,14 @@ class ProgramTemplates {
                 ),
                 Exercise.accessory(
                   name: 'Barbell Row',
-                  liftType: LiftType.barbellRow,
+                  liftType: LiftType.bentOverRow,
                   sets: 3,
                   reps: 8,
                   order: 3,
                 ),
               ],
             ),
-            // Rest days
-            DailyWorkout.restDay(dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
-            DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
+            // Weekend - Rest
             DailyWorkout.restDay(dayId: 'sat', dayName: 'Saturday', dayNumber: 6),
             DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
           ],
@@ -264,7 +265,7 @@ class ProgramTemplates {
           ),
           Exercise.accessory(
             name: 'Barbell Row',
-            liftType: LiftType.barbellRow,
+            liftType: LiftType.bentOverRow,
             sets: 3,
             reps: 8,
             order: 3,
@@ -314,7 +315,7 @@ class ProgramTemplates {
           ),
           Exercise.accessory(
             name: 'Incline Bench',
-            liftType: LiftType.inclineBenchPress,
+            liftType: LiftType.inclineBench,
             sets: 3,
             reps: 8,
             order: 2,
@@ -395,7 +396,7 @@ class ProgramTemplates {
           ),
           Exercise.accessory(
             name: 'Barbell Row',
-            liftType: LiftType.barbellRow,
+            liftType: LiftType.bentOverRow,
             sets: 4,
             reps: 6,
             targetRPEMin: 7.5,
@@ -448,14 +449,14 @@ class ProgramTemplates {
         exercises: [
           Exercise.accessory(
             name: 'Incline Bench',
-            liftType: LiftType.inclineBenchPress,
+            liftType: LiftType.inclineBench,
             sets: 4,
             reps: 10,
             order: 1,
           ),
           Exercise.accessory(
             name: 'Pull-ups',
-            liftType: LiftType.pullup,
+            liftType: LiftType.pullUp,
             sets: 4,
             reps: 10,
             order: 2,

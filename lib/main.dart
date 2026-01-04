@@ -138,8 +138,9 @@ class AIFitnessCoachApp extends StatelessWidget {
       case '/program-selection':
         return _createRoute(
           ProgramSelectionScreen(
-    sport: null,
-  ),
+            sport: null,
+          ),
+        );
 
       // Add more routes here as needed
       // case '/workout-logger':
