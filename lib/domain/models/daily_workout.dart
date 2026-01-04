@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../core/enums/lift_type.dart';
 import 'exercise.dart';
 
 /// Domain model representing a single day's workout
@@ -42,8 +43,7 @@ class DailyWorkout extends Equatable {
     String? coachNotes,
   }) {
     // Auto-calculate duration if not provided
-    final duration = estimatedDurationMinutes ??
-        _calculateDuration(exercises);
+    final duration = estimatedDurationMinutes ?? _calculateDuration(exercises);
 
     return DailyWorkout(
       id: _generateId(),
@@ -76,7 +76,8 @@ class DailyWorkout extends Equatable {
       exercises: const [],
       isRestDay: true,
       estimatedDurationMinutes: 0,
-      coachNotes: coachNotes ?? 'Active recovery: light stretching, walking, or mobility work',
+      coachNotes: coachNotes ??
+          'Active recovery: light stretching, walking, or mobility work',
     );
   }
 
@@ -102,7 +103,8 @@ class DailyWorkout extends Equatable {
       focus: focus ?? this.focus,
       exercises: exercises ?? this.exercises,
       isRestDay: isRestDay ?? this.isRestDay,
-      estimatedDurationMinutes: estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+      estimatedDurationMinutes:
+          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
       warmupNotes: warmupNotes ?? this.warmupNotes,
       cooldownNotes: cooldownNotes ?? this.cooldownNotes,
       coachNotes: coachNotes ?? this.coachNotes,
@@ -187,6 +189,46 @@ class DailyWorkout extends Equatable {
     return 'day_${DateTime.now().millisecondsSinceEpoch}';
   }
 
+  // ==========================================
+  // SERIALIZATION
+  // ==========================================
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'dayId': dayId,
+      'dayName': dayName,
+      'dayNumber': dayNumber,
+      'focus': focus,
+      'exercises': exercises.map((e) => e.toJson()).toList(),
+      'isRestDay': isRestDay,
+      'estimatedDurationMinutes': estimatedDurationMinutes,
+      'warmupNotes': warmupNotes,
+      'cooldownNotes': cooldownNotes,
+      'coachNotes': coachNotes,
+    };
+  }
+
+  /// Create from JSON
+  factory DailyWorkout.fromJson(Map<String, dynamic> json) {
+    return DailyWorkout(
+      id: json['id'] as String,
+      dayId: json['dayId'] as String,
+      dayName: json['dayName'] as String,
+      dayNumber: json['dayNumber'] as int,
+      focus: json['focus'] as String,
+      exercises: (json['exercises'] as List)
+          .map((e) => Exercise.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      isRestDay: json['isRestDay'] as bool? ?? false,
+      estimatedDurationMinutes: json['estimatedDurationMinutes'] as int? ?? 60,
+      warmupNotes: json['warmupNotes'] as String?,
+      cooldownNotes: json['cooldownNotes'] as String?,
+      coachNotes: json['coachNotes'] as String?,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -206,5 +248,55 @@ class DailyWorkout extends Equatable {
   String toString() {
     return 'DailyWorkout(dayName: $dayName, focus: $focus, '
         'exercises: $exerciseCount, isRestDay: $isRestDay)';
+  }
+}
+
+// ==========================================
+// MUSCLE GROUP ENUM (if not already in lift_type.dart)
+// ==========================================
+enum MuscleGroup {
+  chest,
+  back,
+  shoulders,
+  biceps,
+  triceps,
+  quads,
+  hamstrings,
+  glutes,
+  calves,
+  core,
+  forearms,
+  abs,
+  other;
+
+  String get displayName {
+    switch (this) {
+      case MuscleGroup.chest:
+        return 'Chest';
+      case MuscleGroup.back:
+        return 'Back';
+      case MuscleGroup.shoulders:
+        return 'Shoulders';
+      case MuscleGroup.biceps:
+        return 'Biceps';
+      case MuscleGroup.triceps:
+        return 'Triceps';
+      case MuscleGroup.quads:
+        return 'Quadriceps';
+      case MuscleGroup.hamstrings:
+        return 'Hamstrings';
+      case MuscleGroup.glutes:
+        return 'Glutes';
+      case MuscleGroup.calves:
+        return 'Calves';
+      case MuscleGroup.core:
+        return 'Core';
+      case MuscleGroup.forearms:
+        return 'Forearms';
+      case MuscleGroup.abs:
+        return 'Abs';
+      case MuscleGroup.other:
+        return 'Other';
+    }
   }
 }

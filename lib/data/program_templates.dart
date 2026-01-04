@@ -1,8 +1,9 @@
-import '../models/enums.dart';
-import '../models/exercise.dart';
-import '../models/daily_workout.dart';
-import '../models/program_week.dart';
-import '../models/workout_program.dart';
+import '../core/enums/sport.dart';
+import '../core/enums/phase.dart';
+import '../domain/models/exercise.dart';
+import '../domain/models/daily_workout.dart';
+import '../domain/models/program_week.dart';
+import '../domain/models/workout_program.dart';
 
 class ProgramTemplates {
   // Generate unique IDs for programs
@@ -315,3 +316,6 @@ class ProgramTemplates {
     );
   }
 }
+
+
+

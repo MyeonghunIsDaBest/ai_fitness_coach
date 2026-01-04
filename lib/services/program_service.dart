@@ -1,5 +1,5 @@
-import '../models/workout_program.dart';
-import '../models/enums.dart';
+import '../domain/models/workout_program.dart';
+import '../core/enums/sport.dart';
 import '../data/program_templates.dart';
 
 class ProgramService {
@@ -29,3 +29,4 @@ class ProgramService {
     }
   }
 }
+

@@ -1,5 +1,6 @@
-import 'rpe_feedback.dart';
-import 'rpe_thresholds.dart';
+import 'dart:math' as math;
+import '../enums/rpe_feedback.dart';
+import '../constants/rpe_thresholds.dart';
 
 /// Mathematical operations and calculations for RPE data
 /// Handles averaging, session calculations, and feedback generation
@@ -285,5 +286,5 @@ class RPEMath {
   }
 }
 
-// Import dart:math for sqrt function
-import 'dart:math' as math;
+
+

@@ -1,4 +1,4 @@
-import '../models/logged_set.dart';
+import '../../domain/models/logged_set.dart';
 
 /// Utility class for calculating workout session statistics
 /// Handles volume, tonnage, intensity, and completion metrics
@@ -310,3 +310,4 @@ class ExerciseSummary {
         'avg RPE: ${averageRPE.toStringAsFixed(1)})';
   }
 }
+

@@ -1,7 +1,7 @@
-import '../models/logged_set.dart';
-import '../models/workout_program.dart';
-import '../models/program_week.dart';
-import '../models/athlete_profile.dart';
+import '../../domain/models/logged_set.dart';
+import '../../domain/models/workout_program.dart';
+import '../../domain/models/program_week.dart';
+import '../../domain/models/athlete_profile.dart';
 
 /// Repository interface for training-related data operations
 /// Defines contracts for data access without specifying implementation

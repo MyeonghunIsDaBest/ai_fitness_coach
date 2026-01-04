@@ -1,4 +1,4 @@
-import '../models/workout_program.dart';
+import '../domain/models/workout_program.dart';
 
 class ProgramService {
   static final ProgramService _instance = ProgramService._internal();
@@ -9,3 +9,5 @@ class ProgramService {
 
   List<WorkoutProgram> getAllPrograms() => [];
 }
+
+

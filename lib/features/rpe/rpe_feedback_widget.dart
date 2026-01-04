@@ -1,37 +1,41 @@
+import 'package:flutter/material.dart';
+import '../../core/enums/rpe_feedback.dart';
+import '../../core/utils/rpe_math.dart';
+
 class RPEFeedbackWidget extends StatelessWidget {
   final double currentRPE;
-  final int targetMin;
-  final int targetMax;
+  final double targetRPEMin;
+  final double targetRPEMax;
 
   const RPEFeedbackWidget({
+    Key? key,
     required this.currentRPE,
-    required this.targetMin,
-    required this.targetMax,
-  });
+    required this.targetRPEMin,
+    required this.targetRPEMax,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final feedback = RPEMath.getFeedback(currentRPE, targetMin, targetMax);
-
+    final feedback = RPEMath.getFeedback(currentRPE, targetRPEMin, targetRPEMax);
+    
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      padding: EdgeInsets.all(14),
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: feedback.color.withOpacity(0.2),
+        color: Color(feedback.colorValue).withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: feedback.color),
+        border: Border.all(color: Color(feedback.colorValue), width: 2),
       ),
       child: Row(
         children: [
-          Icon(_getIcon(feedback), color: feedback.color, size: 22),
-          SizedBox(width: 12),
+          Icon(feedback.icon, color: Color(feedback.colorValue), size: 24),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               feedback.message,
               style: TextStyle(
-                fontSize: 13,
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
-                color: feedback.color,
               ),
             ),
           ),
@@ -42,12 +46,16 @@ class RPEFeedbackWidget extends StatelessWidget {
 
   IconData _getIcon(RPEFeedback feedback) {
     switch (feedback) {
+      case RPEFeedback.tooEasy:
+        return Icons.sentiment_very_satisfied;
+      case RPEFeedback.belowTarget:
+        return Icons.trending_down;
       case RPEFeedback.onTarget:
         return Icons.check_circle;
+      case RPEFeedback.aboveTarget:
+        return Icons.trending_up;
       case RPEFeedback.tooHard:
-        return Icons.warning_amber;
-      default:
-        return Icons.info_outline;
+        return Icons.warning;
     }
   }
 }
