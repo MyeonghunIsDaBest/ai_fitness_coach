@@ -1,0 +1,94 @@
+/// Application-wide constants
+class AppConstants {
+  // ==========================================
+  // HIVE BOX NAMES
+  // ==========================================
+  static const String workoutBoxName = 'workouts';
+  static const String programBoxName = 'programs';
+  static const String profileBoxName = 'profiles';
+  static const String sessionBoxName = 'sessions';
+
+  // ==========================================
+  // RPE DEFAULTS
+  // ==========================================
+  static const double defaultTargetRPE = 8.0;
+  static const double minValidRPE = 6.0;
+  static const double maxValidRPE = 10.0;
+  static const double defaultRPETolerance = 0.5;
+
+  // ==========================================
+  // WORKOUT LIMITS
+  // ==========================================
+  static const int maxSetsPerExercise = 12;
+  static const int maxExercisesPerWorkout = 15;
+  static const int maxWorkoutDurationMinutes = 180;
+  static const int minRestSeconds = 30;
+  static const int maxRestSeconds = 600;
+
+  // ==========================================
+  // PROGRAM DEFAULTS
+  // ==========================================
+  static const int minWeeksInProgram = 4;
+  static const int maxWeeksInProgram = 52;
+  static const int defaultProgramWeeks = 12;
+  static const int deloadFrequencyWeeks = 4;
+
+  // ==========================================
+  // WEIGHT INCREMENTS
+  // ==========================================
+  static const double smallWeightIncrementLbs = 2.5;
+  static const double mediumWeightIncrementLbs = 5.0;
+  static const double largeWeightIncrementLbs = 10.0;
+  static const double smallWeightIncrementKg = 1.25;
+  static const double mediumWeightIncrementKg = 2.5;
+  static const double largeWeightIncrementKg = 5.0;
+
+  // ==========================================
+  // UI CONSTANTS
+  // ==========================================
+  static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
+  static const Duration longAnimationDuration = Duration(milliseconds: 500);
+  static const Duration shortAnimationDuration = Duration(milliseconds: 150);
+  static const double defaultBorderRadius = 16.0;
+  static const double defaultPadding = 16.0;
+  static const double largePadding = 24.0;
+
+  // ==========================================
+  // ANALYTICS & TRACKING
+  // ==========================================
+  static const int maxRecentSessions = 10;
+  static const int maxHistoryDays = 90;
+  static const int minSessionsForTrend = 3;
+
+  // ==========================================
+  // API CONFIGURATION (for future use)
+  // ==========================================
+  static const String apiBaseUrl = 'https://api.example.com';
+  static const Duration apiTimeout = Duration(seconds: 30);
+  static const int maxRetries = 3;
+
+  // ==========================================
+  // VALIDATION RULES
+  // ==========================================
+  static const int minPasswordLength = 8;
+  static const int minNameLength = 2;
+  static const int maxNameLength = 50;
+  static const int maxNotesLength = 500;
+
+  // ==========================================
+  // FEATURE FLAGS
+  // ==========================================
+  static const bool enableAIChat = true;
+  static const bool enableFormCheck = true;
+  static const bool enableNutritionTracking = false; // Coming soon
+  static const bool enableSocialFeatures = false; // Coming soon
+
+  // ==========================================
+  // COLORS (as fallback if theme not available)
+  // ==========================================
+  static const int primaryColorValue = 0xFFB4F04D;
+  static const int secondaryColorValue = 0xFF00D9FF;
+  static const int errorColorValue = 0xFFFF6B6B;
+  static const int successColorValue = 0xFF4ECDC4;
+  static const int warningColorValue = 0xFFFFE66D;
+}
