@@ -73,7 +73,8 @@ class ProgramWeek extends Equatable {
       intensityMultiplier: 0.6,
       volumeMultiplier: 0.5,
       dailyWorkouts: dailyWorkouts,
-      coachNotes: coachNotes ?? 'Recovery week: focus on technique and feel good',
+      coachNotes:
+          coachNotes ?? 'Recovery week: focus on technique and feel good',
     );
   }
 
@@ -109,7 +110,8 @@ class ProgramWeek extends Equatable {
   }
 
   /// Get intensity range display
-  String get intensityRange => 'RPE ${targetRPEMin.toStringAsFixed(1)}–${targetRPEMax.toStringAsFixed(1)}';
+  String get intensityRange =>
+      'RPE ${targetRPEMin.toStringAsFixed(1)}–${targetRPEMax.toStringAsFixed(1)}';
 
   /// Get target RPE midpoint
   double get targetRPEMid => (targetRPEMin + targetRPEMax) / 2;
@@ -192,6 +194,53 @@ class ProgramWeek extends Equatable {
     return 'week_${DateTime.now().millisecondsSinceEpoch}';
   }
 
+// ==========================================
+// JSON SERIALIZATION
+// ==========================================
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'weekNumber': weekNumber,
+      'phase': phase.name,
+      'weekType': weekType.name,
+      'targetRPEMin': targetRPEMin,
+      'targetRPEMax': targetRPEMax,
+      'intensityMultiplier': intensityMultiplier,
+      'volumeMultiplier': volumeMultiplier,
+      'dailyWorkouts': dailyWorkouts.map((d) => d.toJson()).toList(),
+      'coachNotes': coachNotes,
+      'isCompleted': isCompleted,
+      'completedDate': completedDate?.toIso8601String(),
+    };
+  }
+
+  /// Create from JSON
+  factory ProgramWeek.fromJson(Map<String, dynamic> json) {
+    return ProgramWeek(
+      id: json['id'] as String,
+      weekNumber: json['weekNumber'] as int,
+      phase: Phase.values.byName(json['phase'] as String),
+      weekType: WeekType.values.byName(json['weekType'] as String),
+      targetRPEMin: (json['targetRPEMin'] as num).toDouble(),
+      targetRPEMax: (json['targetRPEMax'] as num).toDouble(),
+      intensityMultiplier: json['intensityMultiplier'] != null
+          ? (json['intensityMultiplier'] as num).toDouble()
+          : 1.0,
+      volumeMultiplier: json['volumeMultiplier'] != null
+          ? (json['volumeMultiplier'] as num).toDouble()
+          : 1.0,
+      dailyWorkouts: (json['dailyWorkouts'] as List)
+          .map((d) => DailyWorkout.fromJson(d as Map<String, dynamic>))
+          .toList(),
+      coachNotes: json['coachNotes'] as String?,
+      isCompleted: json['isCompleted'] as bool? ?? false,
+      completedDate: json['completedDate'] != null
+          ? DateTime.parse(json['completedDate'] as String)
+          : null,
+    );
+  }
   @override
   List<Object?> get props => [
         id,

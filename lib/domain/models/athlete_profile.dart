@@ -382,6 +382,29 @@ class WeakPoint extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'affectedLifts': affectedLifts.map((l) => l.name).toList(),
+      'identifiedDate': identifiedDate.toIso8601String(),
+    };
+  }
+
+  /// Create from JSON
+  factory WeakPoint.fromJson(Map<String, dynamic> json) {
+    return WeakPoint(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      affectedLifts: (json['affectedLifts'] as List)
+          .map((l) => LiftType.values.byName(l as String))
+          .toList(),
+      identifiedDate: DateTime.parse(json['identifiedDate'] as String),
+    );
+  }
+
   @override
   List<Object?> get props =>
       [id, name, description, affectedLifts, identifiedDate];
@@ -451,6 +474,40 @@ class Injury extends Equatable {
       healedDate: healedDate ?? this.healedDate,
       isHealed: isHealed ?? this.isHealed,
       treatmentNotes: treatmentNotes ?? this.treatmentNotes,
+    );
+  }
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'severity': severity.name,
+      'restrictedLifts': restrictedLifts.map((l) => l.name).toList(),
+      'injuryDate': injuryDate.toIso8601String(),
+      'healedDate': healedDate?.toIso8601String(),
+      'isHealed': isHealed,
+      'treatmentNotes': treatmentNotes,
+    };
+  }
+
+  /// Create from JSON
+  factory Injury.fromJson(Map<String, dynamic> json) {
+    return Injury(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      severity: InjurySeverity.values.byName(json['severity'] as String),
+      restrictedLifts: (json['restrictedLifts'] as List)
+          .map((l) => LiftType.values.byName(l as String))
+          .toList(),
+      injuryDate: DateTime.parse(json['injuryDate'] as String),
+      healedDate: json['healedDate'] != null
+          ? DateTime.parse(json['healedDate'] as String)
+          : null,
+      isHealed: json['isHealed'] as bool,
+      treatmentNotes: json['treatmentNotes'] as String?,
     );
   }
 

@@ -209,6 +209,49 @@ class WorkoutProgram extends Equatable {
     return 'prog_${DateTime.now().millisecondsSinceEpoch}';
   }
 
+// ==========================================
+// JSON SERIALIZATION
+// ==========================================
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'sport': sport.name,
+      'description': description,
+      'weeks': weeks.map((w) => w.toJson()).toList(),
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'isActive': isActive,
+      'isCustom': isCustom,
+      'athleteProfileId': athleteProfileId,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  /// Create from JSON
+  factory WorkoutProgram.fromJson(Map<String, dynamic> json) {
+    return WorkoutProgram(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      sport: Sport.values.byName(json['sport'] as String),
+      description: json['description'] as String,
+      weeks: (json['weeks'] as List)
+          .map((w) => ProgramWeek.fromJson(w as Map<String, dynamic>))
+          .toList(),
+      startDate: DateTime.parse(json['startDate'] as String),
+      endDate: json['endDate'] != null
+          ? DateTime.parse(json['endDate'] as String)
+          : null,
+      isActive: json['isActive'] as bool? ?? false,
+      isCustom: json['isCustom'] as bool? ?? false,
+      athleteProfileId: json['athleteProfileId'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
   @override
   List<Object?> get props => [
         id,
