@@ -17,6 +17,7 @@ import 'services/workout_session_service.dart';
 // Feature screens
 import 'features/program_selection/program_selection_screen.dart';
 import 'features/onboarding/goal_setup_screen.dart';
+import 'features/dashboard/week_dashboard_screen.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -131,11 +132,21 @@ class AIFitnessCoachApp extends StatelessWidget {
           ),
         ),
       ),
+      cardTheme: const CardTheme(
+        color: Color(0xFF1E1E1E),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
     );
   }
 
   Route? _generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // ============================================================
+      // ONBOARDING FLOW
+      // ============================================================
       case '/':
         return _createRoute(const SplashScreen());
 
@@ -149,32 +160,69 @@ class AIFitnessCoachApp extends StatelessWidget {
         final sport = settings.arguments as Sport?;
         return _createRoute(GoalSetupScreen(selectedSport: sport));
 
+      // ============================================================
+      // AUTHENTICATION (Future Feature)
+      // ============================================================
       case '/auth':
         final userData = settings.arguments as Map<String, dynamic>?;
         return _createRoute(AuthScreen(userData: userData));
 
+      // ============================================================
+      // MAIN APP SCREENS
+      // ============================================================
       case '/dashboard':
         return _createRoute(const DashboardScreen());
 
+      case '/week-dashboard':
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _createRoute(WeekDashboardScreen(
+          program: args?['program'],
+          currentWeek: args?['currentWeek'] ?? 1,
+        ));
+
+      case '/program-selection':
+        final sport = settings.arguments as Sport?;
+        return _createRoute(ProgramSelectionScreen(sport: sport));
+
+      // ============================================================
+      // WORKOUT FEATURES
+      // ============================================================
+      case '/workout-logger':
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _createRoute(WorkoutLoggerScreen(
+          program: args?['program'],
+          week: args?['week'],
+          day: args?['day'],
+          workout: args?['workout'],
+        ));
+
+      case '/history':
+        return _createRoute(const HistoryScreen());
+
+      case '/workout-detail':
+        final sessionId = settings.arguments as String?;
+        return _createRoute(WorkoutDetailScreen(sessionId: sessionId));
+
+      // ============================================================
+      // AI FEATURES
+      // ============================================================
       case '/chat':
         return _createRoute(const ChatScreen());
 
       case '/form-check':
         return _createRoute(const FormCheckScreen());
 
-      case '/program-selection':
-        return _createRoute(
-          ProgramSelectionScreen(sport: null),
-        );
+      // ============================================================
+      // SETTINGS & PROFILE
+      // ============================================================
+      case '/settings':
+        return _createRoute(const SettingsScreen());
 
-      case '/week-dashboard':
-        return _createRoute(const WeekDashboardScreen());
-
-      case '/workout-logger':
-        return _createRoute(const WorkoutLoggerScreen());
+      case '/profile':
+        return _createRoute(const ProfileScreen());
 
       default:
-        return null;
+        return _createRoute(const NotFoundScreen());
     }
   }
 
@@ -207,15 +255,41 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _controller.forward();
+
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/onboarding');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -234,39 +308,45 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB4F04D).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.fitness_center,
-                  size: 80,
-                  color: Color(0xFFB4F04D),
-                ),
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB4F04D).withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.fitness_center,
+                      size: 80,
+                      color: Color(0xFFB4F04D),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'AI Fitness Coach',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Your Intelligent Training Partner',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.6),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              const Text(
-                'AI Fitness Coach',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Your Intelligent Training Partner',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withOpacity(0.6),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -481,7 +561,6 @@ class SportSelectionScreen extends StatelessWidget {
     String subtitle,
   ) {
     return Card(
-      color: const Color(0xFF1E1E1E),
       child: InkWell(
         onTap: () {
           Navigator.pushNamed(
@@ -540,11 +619,8 @@ class SportSelectionScreen extends StatelessWidget {
 // PLACEHOLDER SCREENS - To be implemented
 // ============================================================================
 
-// GoalSetupScreen is now implemented in features/onboarding/goal_setup_screen.dart
-
 class AuthScreen extends StatelessWidget {
   final Map<String, dynamic>? userData;
-
   const AuthScreen({Key? key, this.userData}) : super(key: key);
 
   @override
@@ -563,7 +639,21 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
-      body: const Center(child: Text('Dashboard - To be implemented')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Main Dashboard - Coming Soon'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/week-dashboard');
+              },
+              child: const Text('Go to Week Dashboard (Test)'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -592,26 +682,110 @@ class FormCheckScreen extends StatelessWidget {
   }
 }
 
-class WeekDashboardScreen extends StatelessWidget {
-  const WeekDashboardScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Week Dashboard')),
-      body: const Center(child: Text('Week Dashboard - To be implemented')),
-    );
-  }
-}
-
 class WorkoutLoggerScreen extends StatelessWidget {
-  const WorkoutLoggerScreen({Key? key}) : super(key: key);
+  final dynamic program;
+  final int? week;
+  final int? day;
+  final dynamic workout;
+
+  const WorkoutLoggerScreen({
+    Key? key,
+    this.program,
+    this.week,
+    this.day,
+    this.workout,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Workout Logger')),
-      body: const Center(child: Text('Workout Logger - To be implemented')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Workout Logger - To be implemented'),
+            if (workout != null) Text('Workout: ${workout.toString()}'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HistoryScreen extends StatelessWidget {
+  const HistoryScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('History')),
+      body: const Center(child: Text('History Screen - To be implemented')),
+    );
+  }
+}
+
+class WorkoutDetailScreen extends StatelessWidget {
+  final String? sessionId;
+  const WorkoutDetailScreen({Key? key, this.sessionId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Workout Detail')),
+      body: Center(
+        child: Text('Workout Detail - Session: ${sessionId ?? "none"}'),
+      ),
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: const Center(child: Text('Settings - To be implemented')),
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: const Center(child: Text('Profile - To be implemented')),
+    );
+  }
+}
+
+class NotFoundScreen extends StatelessWidget {
+  const NotFoundScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Not Found')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text('404 - Page Not Found'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+              child: const Text('Go Home'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

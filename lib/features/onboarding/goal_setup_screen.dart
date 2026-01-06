@@ -290,7 +290,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 14,
-                        color: isSelected ? Colors.white60 : Colors.white40,
+                        color: isSelected ? Colors.white60 : Colors.white60,
                       ),
                     ),
                   ],
