@@ -368,7 +368,7 @@ class _WeekDashboardScreenState extends State<WeekDashboardScreen> {
   DailyWorkout? _getWorkoutForDay(ProgramWeek week, int dayOfWeek) {
     try {
       return week.workouts.firstWhere(
-        (workout) => workout.dayOfWeek == dayOfWeek,
+        (workout) => workout.dayNumber == dayOfWeek,
       );
     } catch (e) {
       return null; // Rest day

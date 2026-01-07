@@ -97,6 +97,15 @@ class WorkoutProgram extends Equatable {
   /// Get total number of weeks
   int get totalWeeks => weeks.length;
 
+  /// Alias for widget compatibility (same as totalWeeks)
+  int get duration => totalWeeks;
+
+  /// Get program duration in weeks
+  int get durationWeeks => weeks.length;
+
+  /// Get program duration in days
+  int get durationDays => weeks.length * 7;
+
   /// Get specific week by number
   ProgramWeek? getWeek(int weekNumber) {
     try {
@@ -163,12 +172,6 @@ class WorkoutProgram extends Equatable {
     return weeks.fold(0, (sum, week) => sum + week.totalSets);
   }
 
-  /// Get program duration in weeks
-  int get durationWeeks => weeks.length;
-
-  /// Get program duration in days
-  int get durationDays => weeks.length * 7;
-
   /// Activate this program
   WorkoutProgram activate() {
     return copyWith(
@@ -202,16 +205,17 @@ class WorkoutProgram extends Equatable {
         description.isNotEmpty &&
         weeks.isNotEmpty &&
         weeks.every((w) => w.isValid) &&
-        startDate.isBefore(endDate ?? DateTime.now().add(Duration(days: 365)));
+        startDate
+            .isBefore(endDate ?? DateTime.now().add(const Duration(days: 365)));
   }
 
   static String _generateId() {
     return 'prog_${DateTime.now().millisecondsSinceEpoch}';
   }
 
-// ==========================================
-// JSON SERIALIZATION
-// ==========================================
+  // ==========================================
+  // JSON SERIALIZATION
+  // ==========================================
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -252,6 +256,7 @@ class WorkoutProgram extends Equatable {
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
+
   @override
   List<Object?> get props => [
         id,

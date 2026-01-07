@@ -129,6 +129,20 @@ class DailyWorkout extends Equatable {
   /// Calculate total reps for the day
   int get totalReps => exercises.fold(0, (sum, e) => sum + e.totalVolume);
 
+  /// Get workout name for display
+  /// Widgets expect a 'name' property
+  String get name {
+    if (isRestDay) return 'Rest Day';
+
+    // Use focus if it's descriptive
+    if (focus.isNotEmpty && focus != dayName) {
+      return focus; // e.g., "Upper Power", "Lower Hypertrophy"
+    }
+
+    // Otherwise use day name
+    return dayName;
+  }
+
   /// Get unique muscle groups trained
   List<MuscleGroup> get muscleGroupsTrained {
     final groups = <MuscleGroup>{};

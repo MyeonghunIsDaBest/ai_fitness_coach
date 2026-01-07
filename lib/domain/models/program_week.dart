@@ -166,6 +166,47 @@ class ProgramWeek extends Equatable {
     return trainingDays.fold(0, (sum, day) => sum + day.totalReps);
   }
 
+  // ==========================================
+  // WIDGET COMPATIBILITY GETTERS
+  // ==========================================
+
+  /// Alias for widgets that expect 'workouts' instead of 'dailyWorkouts'
+  List<DailyWorkout> get workouts => dailyWorkouts;
+
+  /// Count of scheduled workouts (non-rest days)
+  int get scheduledWorkouts => trainingDaysCount;
+
+  /// Get unique exercises across all workouts in the week
+  Set<String> get uniqueExercises {
+    final exercises = <String>{};
+    for (var workout in trainingDays) {
+      for (var exercise in workout.exercises) {
+        exercises.add(exercise.name);
+      }
+    }
+    return exercises;
+  }
+
+  /// Calculate average target RPE across all exercises in the week
+  double get averageTargetRPE {
+    if (trainingDays.isEmpty) return targetRPEMid;
+
+    int totalExercises = 0;
+    double totalRPE = 0.0;
+
+    for (var workout in trainingDays) {
+      for (var exercise in workout.exercises) {
+        // Use rpeTarget if your Exercise model has that property
+        // Or use exercise.targetRPE if it has that
+        final exerciseRPE = exercise.targetRPEMid ?? targetRPEMid;
+        totalRPE += exerciseRPE;
+        totalExercises++;
+      }
+    }
+
+    return totalExercises > 0 ? totalRPE / totalExercises : targetRPEMid;
+  }
+
   /// Get week summary
   String get summary {
     return '${phase.displayName} • $trainingDaysCount training days • $totalSets sets';
@@ -194,9 +235,9 @@ class ProgramWeek extends Equatable {
     return 'week_${DateTime.now().millisecondsSinceEpoch}';
   }
 
-// ==========================================
-// JSON SERIALIZATION
-// ==========================================
+  // ==========================================
+  // JSON SERIALIZATION
+  // ==========================================
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -241,6 +282,7 @@ class ProgramWeek extends Equatable {
           : null,
     );
   }
+
   @override
   List<Object?> get props => [
         id,
