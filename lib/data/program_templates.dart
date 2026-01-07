@@ -7,23 +7,26 @@ import '../domain/models/exercise.dart';
 import '../core/enums/sport.dart';
 import '../core/enums/phase.dart';
 import '../core/enums/lift_type.dart';
+import '../data/templates/powerlifting_templates.dart';
+import '../data/templates/crossfit_templates.dart';
+import '../data/templates/bodybuilding_templates.dart';
 
 /// Pre-built workout program templates
 class ProgramTemplates {
-  
   // ============================================================================
   // POWERLIFTING PROGRAMS
   // ============================================================================
-  
+
   /// Starting Strength - Beginner 12-week program
   static WorkoutProgram get startingStrength {
     final now = DateTime.now();
-    
+
     return WorkoutProgram(
       id: 'template_starting_strength',
       name: 'Starting Strength',
       sport: Sport.powerlifting,
-      description: 'Classic beginner program focusing on the main lifts with linear progression',
+      description:
+          'Classic beginner program focusing on the main lifts with linear progression',
       startDate: now,
       updatedAt: now,
       createdAt: now,
@@ -33,7 +36,7 @@ class ProgramTemplates {
 
   static List<ProgramWeek> _generateStartingStrengthWeeks() {
     List<ProgramWeek> weeks = [];
-    
+
     // Week 1-4: Foundation Phase
     for (int i = 1; i <= 4; i++) {
       weeks.add(
@@ -78,7 +81,8 @@ class ProgramTemplates {
               ],
             ),
             // Tuesday - Rest
-            DailyWorkout.restDay(dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
+            DailyWorkout.restDay(
+                dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
             // Wednesday
             DailyWorkout.trainingDay(
               dayId: 'wed',
@@ -116,7 +120,8 @@ class ProgramTemplates {
               ],
             ),
             // Thursday - Rest
-            DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
+            DailyWorkout.restDay(
+                dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
             // Friday
             DailyWorkout.trainingDay(
               dayId: 'fri',
@@ -152,7 +157,8 @@ class ProgramTemplates {
               ],
             ),
             // Weekend - Rest
-            DailyWorkout.restDay(dayId: 'sat', dayName: 'Saturday', dayNumber: 6),
+            DailyWorkout.restDay(
+                dayId: 'sat', dayName: 'Saturday', dayNumber: 6),
             DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
           ],
         ),
@@ -330,11 +336,11 @@ class ProgramTemplates {
   // ============================================================================
   // BODYBUILDING PROGRAMS
   // ============================================================================
-  
+
   /// Upper/Lower Split - 4 days per week
   static WorkoutProgram get upperLowerSplit {
     final now = DateTime.now();
-    
+
     return WorkoutProgram(
       id: 'template_upper_lower',
       name: 'Upper/Lower Split',
@@ -349,7 +355,7 @@ class ProgramTemplates {
 
   static List<ProgramWeek> _generateUpperLowerWeeks() {
     List<ProgramWeek> weeks = [];
-    
+
     for (int i = 1; i <= 8; i++) {
       // Every 4th week is deload
       if (i % 4 == 0) {
@@ -372,7 +378,7 @@ class ProgramTemplates {
         );
       }
     }
-    
+
     return weeks;
   }
 
@@ -508,7 +514,7 @@ class ProgramTemplates {
   // ============================================================================
   // HELPER METHOD
   // ============================================================================
-  
+
   /// Get all available templates
   static List<WorkoutProgram> getAllTemplates() {
     return [

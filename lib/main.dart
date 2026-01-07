@@ -46,8 +46,7 @@ void main() async {
   );
 
   // Initialize services
-  final programService = ProgramService();
-  programService.setRepository(repository);
+  final programService = ProgramService(repository);
   final rpeService = RPEFeedbackService();
   final progressionService = ProgressionService(repository);
   final sessionService = WorkoutSessionService(repository);

@@ -1,26 +1,45 @@
-name: ai_fitness_coach
-description: AI-powered fitness coaching app
-
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
-
-  # State Management (ADD THESE)
-  flutter_riverpod: ^2.4.9
   
-  # Already existing
+  # State Management
+  flutter_riverpod: ^2.4.0  # If you want reactive state
+  
+  # Local Storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
-  # Functional Programming (ADD THIS)
-  dartz: ^0.10.1
+  # Charts (for RPE analytics)
+  fl_chart: ^0.65.0
   
-  # Utilities (if not present, ADD THESE)
-  equatable: ^2.0.5
-  uuid: ^4.0.0
+  # Utilities
+  intl: ^0.18.1              # Date formatting
+  equatable: ^2.0.5          # Value equality
+  
+  # Optional but recommended
+  cached_network_image: ^3.3.0  # For profile pics
+  image_picker: ^1.0.4          # For progress photos
+
+dev_dependencies:
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
+```
+
+---
+
+## 🎯 **FINAL RECOMMENDATIONS**
+
+### **Before You Code Anything**:
+
+1. **Fix the duplicate `app_constants`** issue
+2. **Create `GeneralFitnessTemplates`** so your app doesn't crash
+3. **Update `ProgramService`** constructor to accept repository
+4. **Create a simple `MainDashboardScreen`** as your starting point
+
+### **Development Order**:
+```
+Week 1: Fix current issues + Create dashboard
+Week 2: Implement workout logger enhancements
+Week 3: Add history screen
+Week 4: Implement RPE analytics (what you want!)
+Week 5: Polish + testing
