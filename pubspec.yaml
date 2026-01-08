@@ -1,45 +1,75 @@
+name: ai_fitness_coach
+description: AI-powered fitness coaching app with RPE-based autoregulation
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
+
+  # State Management (CRITICAL for Day 1)
+  flutter_riverpod: ^2.4.9          # Latest stable version
+  riverpod_annotation: ^2.3.3       # Code generation support
+  flutter_hooks: ^0.20.3            # Hooks for cleaner widgets
   
-  # State Management
-  flutter_riverpod: ^2.4.0  # If you want reactive state
-  
-  # Local Storage
+  # Local Storage (CRITICAL for Day 2)
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  path_provider: ^2.1.1             # For Hive path resolution
   
-  # Charts (for RPE analytics)
-  fl_chart: ^0.65.0
+  # Charts & Analytics (Day 9)
+  fl_chart: ^0.66.0                 # Updated to latest (was 0.65.0)
   
   # Utilities
-  intl: ^0.18.1              # Date formatting
-  equatable: ^2.0.5          # Value equality
+  intl: ^0.18.1                     # Date formatting
+  equatable: ^2.0.5                 # Value equality for models
   
-  # Optional but recommended
-  cached_network_image: ^3.3.0  # For profile pics
-  image_picker: ^1.0.4          # For progress photos
+  # UI Enhancements
+  cached_network_image: ^3.3.0      # Profile pics & assets
+  image_picker: ^1.0.7              # Progress photos (updated)
+  
+  # Additional Recommended
+  flutter_svg: ^2.0.9               # SVG support for icons
+  shimmer: ^3.0.0                   # Loading animations
+  
+  # Icons
+  cupertino_icons: ^1.0.6
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
+    
+  # Hive Code Generation (Day 2)
   hive_generator: ^2.0.1
-  build_runner: ^2.4.6
-```
+  build_runner: ^2.4.7              # Updated version
+  
+  # Riverpod Code Generation (Day 1)
+  riverpod_generator: ^2.3.9        # NEW: For code generation
+  custom_lint: ^0.5.7               # NEW: Linting support
+  riverpod_lint: ^2.3.7             # NEW: Riverpod-specific lints
+  
+  # Testing
+  mockito: ^5.4.4                   # Mock objects for tests
+  
+  # Linting
+  flutter_lints: ^3.0.1
 
----
-
-## 🎯 **FINAL RECOMMENDATIONS**
-
-### **Before You Code Anything**:
-
-1. **Fix the duplicate `app_constants`** issue
-2. **Create `GeneralFitnessTemplates`** so your app doesn't crash
-3. **Update `ProgramService`** constructor to accept repository
-4. **Create a simple `MainDashboardScreen`** as your starting point
-
-### **Development Order**:
-```
-Week 1: Fix current issues + Create dashboard
-Week 2: Implement workout logger enhancements
-Week 3: Add history screen
-Week 4: Implement RPE analytics (what you want!)
-Week 5: Polish + testing
+# Assets
+flutter:
+  uses-material-design: true
+  
+  # Add assets here
+  # assets:
+  #   - images/
+  #   - icons/
+  
+  # Fonts (optional)
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: fonts/Roboto-Regular.ttf
+  #       - asset: fonts/Roboto-Bold.ttf
+  #         weight: 700
