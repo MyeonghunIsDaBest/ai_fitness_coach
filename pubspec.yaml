@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
 
   # State Management (CRITICAL for Day 1)
-  flutter_riverpod: ^2.4.9          # Latest stable version
-  riverpod_annotation: ^2.3.3       # Code generation support
+  flutter_riverpod: ^2.6.1          # Latest stable version
+  riverpod_annotation: ^2.6.1       # Code generation support
   flutter_hooks: ^0.20.3            # Hooks for cleaner widgets
   
   # Local Storage (CRITICAL for Day 2)
