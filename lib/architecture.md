@@ -1,328 +1,237 @@
-# 🧠 Project Architecture Guide
-
-This document explains the purpose and responsibility of every major folder and file in the `lib/` directory.
-
-The goal is to ensure:
-- Clear separation of concerns
-- Long-term scalability
-- Easy onboarding for contributors
-- Production-readiness
-
----
-
-## 📁 lib/core/
-
-**Purpose:**  
-Framework-level rules and shared logic used across the entire app.
-
-No Flutter widgets.  
-No Firebase.  
-No app-specific state.
-
-### `core/enums/`
-Defines all fixed states used throughout the app.
-
-Examples:
-- Sports types
-- Training phases
-- RPE feedback states
-- Lift categories
-
-Using enums prevents string-based bugs and enables predictable logic.
-
----
-
-### `core/constants/`
-Hard-coded rules and shared UI labels.
-
-- `rpe_thresholds.dart`  
-  Defines what is considered:
-  - too easy
-  - on target
-  - too hard
-
-- `ui_strings.dart`  
-  Centralized text such as:
-  - “Exercise Preview”
-  - “Set Tracker”
-  - “Session Average RPE”
-
-This makes UI consistent and easier to localize later.
-
----
-
-### `core/utils/`
-Pure functions and calculations.
-
-- `rpe_math.dart`
-  - Average RPE
-  - Estimated 1RM
-  - RPE trend calculations
-
-- `session_stats.dart`
-  - Total volume
-  - Tonnage
-  - Completed sets
-
-These utilities contain **no state** and are easy to test.
-
----
-
-### `core/errors/`
-Unified error handling.
-
-`failures.dart` defines typed failures such as:
-- StorageFailure
-- NetworkFailure
-- ValidationFailure
-
-This avoids raw exceptions leaking into the UI.
-
----
-
-## 📁 lib/domain/
-
-**Purpose:**  
-The heart of the training system.
-
-Contains:
-- Business rules
-- Training models
-- Use cases
-
-No Flutter.  
-No database logic.
-
----
-
-### `domain/models/`
-Represents real-world training concepts.
-
-- Exercise
-- DailyWorkout
-- ProgramWeek
-- WorkoutProgram
-- AthleteProfile
-- LoggedSet
-
-These models are storage-agnostic and reusable.
-
----
-
-### `domain/repositories/`
-Defines contracts (interfaces) for data access.
-
-Example:
-- Load program
-- Save workout session
-- Retrieve history
-
-This allows swapping storage implementations without changing business logic.
-
----
-
-### `domain/usecases/`
-Single-responsibility actions.
-
-Each use case performs one job:
-- Log a set
-- Calculate session RPE
-- Adjust next week’s load
-
-This layer is also where future AI logic will plug in.
-
----
-
-## 📁 lib/data/
-
-**Purpose:**  
-Concrete implementations of repositories and data sources.
-
----
-
-### `data/templates/`
-Contains actual training programs.
-
-Examples:
-- Powerlifting 12-week program
-- Bodybuilding splits
-- CrossFit cycles
-
-These are real, opinionated programs — not placeholders.
-
----
-
-### `data/repositories/`
-Implements domain repositories using:
-- Local storage (Hive)
-- Cloud storage (Firebase – future)
-
----
-
-### `data/mappers/`
-Transforms raw data formats (JSON, DB) into domain models.
-
-Prevents domain pollution and keeps models clean.
-
----
-
-## 📁 lib/services/
-
-**Purpose:**  
-Higher-level coordination and intelligence.
-
-Examples:
-- RPE feedback logic
-- Progression adjustments
-- Exercise preview mapping
-
-This layer orchestrates domain logic and prepares data for the UI.
-
----
-
-## 📁 lib/features/
-
-**Purpose:**  
-User-facing functionality grouped by feature.
-
-Each feature contains:
-- UI
-- Controllers
-- Feature-specific widgets
-
----
-
-### Workout Feature
-- Workout screen
-- Set tracker
-- Completion flow
-
----
-
-### RPE Feature
-- RPE slider
-- Feedback banners
-
----
-
-### History Feature
-- Past workouts
-- Session summaries
-- Analytics hooks
-
----
-
-### Exercise Preview Feature (Future)
-Provides animated movement previews to reduce the need for searching external demo videos.
-
-Planned future extension:
-- Pose estimation
-- Stick-figure form analysis
-
----
-
-## 📁 lib/main.dart
-
-**Purpose:**  
-Application entry point.
-
-Responsibilities:
-- App initialization
-- Dependency injection
-- Theme setup
-- Routing
-- State provider setup
-
----
-
-## 🧠 Final Notes
-
-This architecture is intentionally designed to:
-- Scale to AI features
-- Support multiple sports
-- Remain testable
-- Avoid refactors later
-
-Execution and wiring are the current priorities.
-
----
-
+```
 lib/
-├── core/                         // App-wide rules & shared logic
-│   ├── enums/                    // Fixed states used everywhere
-│   │   ├── sport.dart            // Powerlifting, Bodybuilding, CrossFit, Olympic
-│   │   ├── phase.dart            // Volume, Strength, Peak, Deload
-│   │   ├── week_type.dart        // Normal, Deload, Test
-│   │   ├── lift_type.dart        // Squat, Bench, Deadlift, Accessory
-│   │   └── rpe_feedback.dart     // TooEasy, OnTarget, TooHard
-│   │
-│   ├── constants/                // Hard rules & shared UI labels
-│   │   ├── rpe_thresholds.dart   // RPE cutoffs & fatigue rules
-│   │   └── ui_strings.dart       // "Exercise Preview", "Set Tracker", etc.
-│   │
-│   ├── utils/                    // Pure functions (no state)
-│   │   ├── rpe_math.dart         // Avg RPE, e1RM, trends
-│   │   └── session_stats.dart    // Volume, tonnage, completion
-│   │
-│   └── errors/                   // Unified error handling
-│       └── failures.dart         // StorageFailure, NetworkFailure, etc.
+├── main.dart
+├── app.dart
 │
-├── domain/                       // Training logic & business rules
-│   ├── models/                   // Core training entities
-│   │   ├── exercise.dart         // + previewAsset (future)
-│   │   ├── daily_workout.dart
-│   │   ├── program_week.dart
-│   │   ├── workout_program.dart
-│   │   ├── athlete_profile.dart
-│   │   └── logged_set.dart       // Set Tracker persistence
-│   │
-│   ├── repositories/             // Contracts only (interfaces)
-│   │   └── training_repository.dart
-│   │
-│   └── usecases/                 // Single-responsibility actions
-│       ├── get_program.dart
-│       ├── log_set_rpe.dart
-│       ├── calculate_session_rpe.dart
-│       ├── calculate_volume.dart
-│       └── adjust_next_week_load.dart
+├── core/
+│   ├── constants/
+│   │   ├── app_constants.dart
+│   │   ├── sports_constants.dart
+│   │   └── route_constants.dart
+│   ├── theme/
+│   │   ├── app_theme.dart
+│   │   ├── colors.dart
+│   │   └── text_styles.dart
+│   ├── utils/
+│   │   ├── date_utils.dart
+│   │   ├── validators.dart
+│   │   └── formatters.dart
+│   └── config/
+│       └── app_config.dart
 │
-├── data/                         // Concrete implementations
-│   ├── templates/                // Actual training programs
-│   │   ├── powerlifting.dart
-│   │   ├── bodybuilding.dart
-│   │   ├── crossfit.dart
-│   │   └── olympic.dart
-│   │
-│   ├── repositories/             // Implements domain repositories
-│   │   └── training_repository_impl.dart
-│   │
-│   └── mappers/                  // Data ↔ Domain transformers
-│       └── program_mapper.dart
+├── models/
+│   ├── user/
+│   │   ├── user_profile.dart
+│   │   └── user_preferences.dart
+│   ├── training/
+│   │   ├── exercise.dart
+│   │   ├── workout_session.dart
+│   │   ├── training_program.dart
+│   │   ├── set_data.dart
+│   │   └── rpe_data.dart
+│   ├── sports/
+│   │   ├── sport_type.dart
+│   │   └── sport_specific_metrics.dart
+│   ├── analytics/
+│   │   ├── performance_metrics.dart
+│   │   ├── progress_data.dart
+│   │   └── time_range.dart
+│   └── form_check/
+│       ├── form_analysis.dart
+│       └── form_feedback.dart
 │
-├── services/                     // Coaching intelligence & orchestration
-│   ├── program_service.dart
-│   ├── rpe_feedback_service.dart
-│   ├── progression_service.dart
-│   └── exercise_preview_service.dart   // 🚧 future (animations / pose)
+├── providers/
+│   ├── session_provider.dart
+│   ├── analytics_provider.dart
+│   ├── profile_provider.dart
+│   ├── program_provider.dart
+│   ├── navigation_provider.dart
+│   ├── form_check_provider.dart
+│   └── chat_provider.dart
 │
-├── features/                     // User-facing features (UI)
-│   ├── program_selection/
-│   │   └── program_selection_screen.dart
-│   │
-│   ├── workout/                  // Core training experience
-│   │   ├── workout_screen.dart
-│   │   ├── set_tracker_widget.dart      // Sets & reps UI
-│   │   └── workout_controller.dart
-│   │
-│   ├── rpe/                      // RPE input & feedback
-│   │   ├── rpe_slider.dart
-│   │   └── rpe_feedback_banner.dart
-│   │
-│   ├── history/                  // Past workouts & analytics
-│   │   └── workout_history_screen.dart
-│   │
-│   └── exercise_preview/         // 🚧 future feature
-│       ├── exercise_preview_widget.dart
-│       └── preview_assets.dart
+├── services/
+│   ├── api/
+│   │   ├── api_service.dart
+│   │   └── api_endpoints.dart
+│   ├── storage/
+│   │   ├── local_storage_service.dart
+│   │   └── cache_service.dart
+│   ├── ai/
+│   │   ├── ai_service.dart
+│   │   └── form_analysis_service.dart
+│   └── auth/
+│       └── auth_service.dart
 │
-└── main.dart                     // App entry point & composition root
+├── screens/
+│   ├── main_navigation/
+│   │   ├── main_navigation_screen.dart
+│   │   ├── home_tab.dart
+│   │   ├── programs_tab.dart
+│   │   ├── analytics_tab.dart
+│   │   └── profile_tab.dart
+│   │
+│   ├── home/
+│   │   ├── home_screen.dart
+│   │   ├── widgets/
+│   │   │   ├── quick_access_card.dart
+│   │   │   ├── recent_workouts_list.dart
+│   │   │   ├── stats_overview.dart
+│   │   │   └── sports_selection_grid.dart
+│   │   └── sport_dashboard_screen.dart
+│   │
+│   ├── programs/
+│   │   ├── programs_overview_screen.dart
+│   │   ├── program_detail_screen.dart
+│   │   ├── program_selection_screen.dart
+│   │   ├── create_program_screen.dart
+│   │   └── templates/
+│   │       ├── olympic_lifting_templates.dart
+│   │       ├── powerlifting_templates.dart
+│   │       ├── bodybuilding_templates.dart
+│   │       └── sport_specific_templates.dart
+│   │
+│   ├── sports/
+│   │   ├── sports_hub_screen.dart
+│   │   ├── olympic_lifting/
+│   │   │   ├── olympic_lifting_screen.dart
+│   │   │   └── technique_library_screen.dart
+│   │   ├── powerlifting/
+│   │   │   └── powerlifting_screen.dart
+│   │   ├── running/
+│   │   │   └── running_screen.dart
+│   │   ├── swimming/
+│   │   │   └── swimming_screen.dart
+│   │   ├── cycling/
+│   │   │   └── cycling_screen.dart
+│   │   └── team_sports/
+│   │       ├── basketball_screen.dart
+│   │       ├── football_screen.dart
+│   │       └── volleyball_screen.dart
+│   │
+│   ├── workout/
+│   │   ├── active_workout_screen.dart
+│   │   ├── workout_history_screen.dart
+│   │   ├── workout_summary_screen.dart
+│   │   └── widgets/
+│   │       ├── exercise_card.dart
+│   │       ├── set_input_widget.dart
+│   │       └── timer_widget.dart
+│   │
+│   ├── analytics/
+│   │   ├── analytics_screen.dart
+│   │   ├── rpe_trends_tab.dart
+│   │   ├── volume_trends_tab.dart
+│   │   ├── strength_progress_tab.dart
+│   │   └── widgets/
+│   │       ├── rpe_bar_chart.dart
+│   │       ├── progress_line_chart.dart
+│   │       └── stats_card.dart
+│   │
+│   ├── form_checker/
+│   │   ├── form_checker_screen.dart
+│   │   ├── camera_capture_screen.dart
+│   │   ├── video_upload_screen.dart
+│   │   ├── form_analysis_screen.dart
+│   │   ├── form_history_screen.dart
+│   │   └── widgets/
+│   │       ├── video_player_widget.dart
+│   │       ├── skeleton_overlay.dart
+│   │       ├── angle_indicator.dart
+│   │       └── feedback_card.dart
+│   │
+│   ├── ai_chatbot/
+│   │   ├── chatbot_screen.dart
+│   │   ├── widgets/
+│   │   │   ├── message_bubble.dart
+│   │   │   ├── quick_questions_chip.dart
+│   │   │   └── typing_indicator.dart
+│   │   └── chat_history_screen.dart
+│   │
+│   └── profile/
+│       ├── profile_screen.dart
+│       ├── settings_screen.dart
+│       ├── edit_profile_screen.dart
+│       └── preferences_screen.dart
+│
+├── widgets/
+│   ├── common/
+│   │   ├── custom_app_bar.dart
+│   │   ├── custom_button.dart
+│   │   ├── custom_text_field.dart
+│   │   ├── loading_indicator.dart
+│   │   ├── empty_state.dart
+│   │   └── error_widget.dart
+│   ├── cards/
+│   │   ├── stat_card.dart
+│   │   ├── workout_card.dart
+│   │   ├── program_card.dart
+│   │   └── sport_card.dart
+│   ├── charts/
+│   │   ├── bar_chart.dart
+│   │   ├── line_chart.dart
+│   │   └── pie_chart.dart
+│   └── dialogs/
+│       ├── confirmation_dialog.dart
+│       ├── input_dialog.dart
+│       └── info_dialog.dart
+│
+├── navigation/
+│   ├── app_router.dart
+│   ├── route_generator.dart
+│   └── navigation_helper.dart
+│
+└── generated/
+    └── assets.dart
+```
+
+## Key Features Organization:
+
+### 1. **Main Navigation Hub** (`screens/main_navigation/`)
+- Central navigation screen with bottom navigation bar
+- Quick access to all major features
+- Dashboard view with personalized content
+
+### 2. **Sports Training Programs** (`screens/sports/`)
+- Individual screens for each sport type
+- Sport-specific training templates
+- Technique libraries and guides
+- Performance tracking per sport
+
+### 3. **Form Checker** (`screens/form_checker/`)
+- Camera/video capture functionality
+- AI-powered form analysis
+- Visual feedback with skeleton overlay
+- Historical form analysis tracking
+- Exercise-specific cues and corrections
+
+### 4. **AI Chatbot** (`screens/ai_chatbot/`)
+- Conversational AI assistant
+- Training advice and tips
+- Form check queries
+- Program recommendations
+- Workout planning assistance
+
+### 5. **Program Management** (`screens/programs/`)
+- Browse available programs
+- Create custom programs
+- Template library (Olympic lifting, powerlifting, etc.)
+- Track program progress
+
+### 6. **Analytics Dashboard** (`screens/analytics/`)
+- RPE trends tracking
+- Volume and intensity analysis
+- Strength progression charts
+- Performance metrics visualization
+
+## Provider Architecture:
+- `navigation_provider.dart`: Manages navigation state and routing
+- `form_check_provider.dart`: Handles form analysis state and data
+- `chat_provider.dart`: Manages chatbot conversations and context
+- Existing providers integrated seamlessly
+
+## Future Implementation Notes:
+- AI services module ready for ML model integration
+- Form analysis service placeholder for computer vision
+- Modular structure allows easy feature additions
+- Scalable architecture for multi-sport support
+```

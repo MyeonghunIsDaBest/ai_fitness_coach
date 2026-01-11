@@ -2,7 +2,6 @@ import '../domain/repositories/training_repository.dart';
 import '../domain/models/logged_set.dart';
 
 /// Service for managing workout sessions
-/// Provides high-level methods for creating, updating, and completing workouts
 class WorkoutSessionService {
   final TrainingRepository _repository;
 
@@ -13,7 +12,6 @@ class WorkoutSessionService {
   // ==========================================
 
   /// Start a new workout session
-  /// Returns the session ID for tracking
   Future<String> startSession({
     required String programId,
     required int weekNumber,
@@ -27,12 +25,10 @@ class WorkoutSessionService {
       workoutName: workoutName,
       startTime: DateTime.now(),
     );
-
     return sessionId;
   }
 
   /// Complete a workout session
-  /// Marks it as finished and saves end time
   Future<void> completeSession(String sessionId, {String? notes}) async {
     await _repository.completeSession(
       sessionId,
@@ -115,19 +111,6 @@ class WorkoutSessionService {
     await _repository.updateSessionNotes(sessionId, notes);
   }
 
-  /// Save session (legacy method - redirects to startSession)
-  @Deprecated('Use startSession instead')
-  Future<void> saveSession(dynamic session) async {
-    // This was a placeholder - now handled by startSession
-    throw UnimplementedError('Use startSession instead');
-  }
-
-  /// Get sessions (legacy method - redirects to getRecentSessions)
-  @Deprecated('Use getRecentSessions instead')
-  Future<List<dynamic>> getSessions() async {
-    return await getRecentSessions();
-  }
-
   // ==========================================
   // STATISTICS
   // ==========================================
@@ -139,12 +122,36 @@ class WorkoutSessionService {
       throw Exception('Session not found');
     }
 
+    // Calculate total sets
+    final totalSets = session.sets.length;
+
+    // Calculate total volume (sum of weight * reps for all sets)
+    final totalVolume = session.sets.fold<double>(
+      0.0,
+      (sum, set) => sum + (set.weight * set.reps),
+    );
+
+    // Calculate average RPE
+    final averageRPE = session.sets.isEmpty
+        ? 0.0
+        : session.sets.fold<double>(0.0, (sum, set) => sum + set.rpe) /
+            session.sets.length;
+
+    // Get unique exercises
+    final uniqueExercises = session.sets.map((s) => s.exerciseName).toSet();
+
+    // Calculate duration
+    Duration? duration;
+    if (session.endTime != null) {
+      duration = session.endTime!.difference(session.startTime);
+    }
+
     return SessionStatistics(
-      totalSets: session.totalSets,
-      totalVolume: session.totalVolume,
-      averageRPE: session.averageRPE,
-      duration: session.duration,
-      completedExercises: session.exercisesPerformed.length,
+      totalSets: totalSets,
+      totalVolume: totalVolume,
+      averageRPE: averageRPE,
+      duration: duration,
+      completedExercises: uniqueExercises.length,
     );
   }
 
@@ -152,17 +159,31 @@ class WorkoutSessionService {
   Future<bool> hasActiveSession() async {
     final recent = await getRecentSessions(limit: 1);
     if (recent.isEmpty) return false;
-    return recent.first.isInProgress;
+    return recent.first.endTime == null;
   }
 
   /// Get the active session ID if one exists
   Future<String?> getActiveSessionId() async {
     final recent = await getRecentSessions(limit: 1);
     if (recent.isEmpty) return null;
-    if (recent.first.isInProgress) {
+    if (recent.first.endTime == null) {
       return recent.first.id;
     }
     return null;
+  }
+
+  // ==========================================
+  // LEGACY METHODS
+  // ==========================================
+
+  @Deprecated('Use startSession instead')
+  Future<void> saveSession(dynamic session) async {
+    throw UnimplementedError('Use startSession instead');
+  }
+
+  @Deprecated('Use getRecentSessions instead')
+  Future<List<dynamic>> getSessions() async {
+    return await getRecentSessions();
   }
 }
 

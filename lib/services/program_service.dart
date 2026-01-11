@@ -1,24 +1,19 @@
 import '../domain/repositories/training_repository.dart';
-import '../domain/models/workout_program.dart';
-import '../data/program_templates.dart';
 
+/// Service for managing training programs
 class ProgramService {
-  static final ProgramService _instance = ProgramService._internal();
-  factory ProgramService() => _instance;
-  ProgramService._internal();
+  final TrainingRepository _repository;
 
-  late TrainingRepository _repository;
+  ProgramService(this._repository);
 
-  void setRepository(TrainingRepository repository) {
-    _repository = repository;
+  // Legacy methods for compatibility
+  @Deprecated('Use repository methods directly')
+  Future<void> saveProgram(dynamic program) async {
+    throw UnimplementedError('Use repository methods directly');
   }
 
-  Future<List<WorkoutProgram>> getAvailablePrograms() async {
-    return ProgramTemplates.getAllTemplates();
-  }
-
-  Future<void> selectProgram(WorkoutProgram program) async {
-    await _repository.saveProgram(program);
-    await _repository.setActiveProgram(program.id);
+  @Deprecated('Use repository methods directly')
+  Future<List<dynamic>> getPrograms() async {
+    throw UnimplementedError('Use repository methods directly');
   }
 }
