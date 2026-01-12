@@ -1,17 +1,13 @@
+// lib/features/program_selection/program_selection_screen.dart
+
 import 'package:flutter/material.dart';
 import '../../core/enums/sport.dart';
-import '../../core/enums/phase.dart';
 import '../../domain/models/workout_program.dart';
-import '../../domain/models/program_week.dart';
-import '../../domain/models/daily_workout.dart';
-import '../../domain/models/exercise.dart';
-import '../../core/enums/lift_type.dart';
 import '../../data/templates/powerlifting_templates.dart';
 import '../../data/templates/bodybuilding_templates.dart';
 import '../../data/templates/crossfit_templates.dart';
 import '../../data/templates/general_fitness_templates.dart';
 
-/// Program selection screen with animated cards and program templates
 class ProgramSelectionScreen extends StatefulWidget {
   final Sport? sport;
 
@@ -21,270 +17,273 @@ class ProgramSelectionScreen extends StatefulWidget {
   State<ProgramSelectionScreen> createState() => _ProgramSelectionScreenState();
 }
 
-class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  WorkoutProgram? selectedProgram;
-  List<WorkoutProgram> availablePrograms = [];
+class _ProgramSelectionScreenState extends State<ProgramSelectionScreen> {
+  WorkoutProgram? _selectedProgram;
+  List<WorkoutProgram> _availablePrograms = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _animController.forward();
-
-    // Load programs based on sport
     _loadPrograms();
   }
 
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
+  Future<void> _loadPrograms() async {
+    setState(() => _isLoading = true);
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Load programs based on sport
+    List<WorkoutProgram> programs = [];
+
+    switch (widget.sport) {
+      case Sport.powerlifting:
+        programs = PowerliftingTemplates.getAllTemplates();
+        break;
+      case Sport.bodybuilding:
+        programs = BodybuildingTemplates.getAllTemplates();
+        break;
+      case Sport.crossfit:
+        programs = CrossFitTemplates.getAllTemplates();
+        break;
+      case Sport.generalFitness:
+        programs = GeneralFitnessTemplates.getAllTemplates();
+        break;
+      default:
+        programs = GeneralFitnessTemplates.getAllTemplates();
+    }
+
+    setState(() {
+      _availablePrograms = programs;
+      _isLoading = false;
+    });
   }
 
-  void _loadPrograms() {
-    setState(() {
-      // Load templates based on selected sport
-      switch (widget.sport) {
-        case Sport.powerlifting:
-          availablePrograms = PowerliftingTemplates.getAllTemplates();
-          break;
-        case Sport.bodybuilding:
-          availablePrograms = BodybuildingTemplates.getAllTemplates();
-          break;
-        case Sport.crossfit:
-          availablePrograms = CrossFitTemplates.getAllTemplates();
-          break;
-        case Sport.generalFitness:
-          availablePrograms = GeneralFitnessTemplates.getAllTemplates();
-          break;
-        default:
-          // If no sport selected, show all
-          availablePrograms = [
-            ...PowerliftingTemplates.getAllTemplates(),
-            ...BodybuildingTemplates.getAllTemplates(),
-          ];
-      }
-    });
+  Future<void> _selectProgram() async {
+    if (_selectedProgram == null) return;
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    // TODO: Save program to repository
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Close loading dialog
+    if (mounted) Navigator.pop(context);
+
+    // Navigate to main navigation (home screen)
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/main',
+        (route) => false, // Remove all previous routes
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
         title: const Text('Select Your Program'),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: availablePrograms.isEmpty
-            ? _buildEmptyState()
-            : _buildProgramList(),
-      ),
-      bottomNavigationBar:
-          selectedProgram != null ? _buildContinueButton() : null,
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.fitness_center,
-            size: 80,
-            color: Colors.white.withOpacity(0.3),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'No programs available',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Check back soon for new programs!',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgramList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: availablePrograms.length,
-      itemBuilder: (context, index) {
-        return _buildProgramCard(availablePrograms[index], index);
-      },
-    );
-  }
-
-  Widget _buildProgramCard(WorkoutProgram program, int index) {
-    final isSelected = selectedProgram?.id == program.id;
-    final delay = index * 100;
-
-    return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-          parent: _animController,
-          curve: Interval(
-            delay / 1500,
-            (delay + 500) / 1500,
-            curve: Curves.easeOut,
-          ),
-        ),
-      ),
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _animController,
-            curve: Interval(
-              delay / 1500,
-              (delay + 500) / 1500,
-              curve: Curves.easeOut,
-            ),
-          ),
-        ),
-        child: GestureDetector(
-          onTap: () => setState(() => selectedProgram = program),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: isSelected
-                  ? LinearGradient(
-                      colors: [
-                        Color(program.sport.colorValue).withOpacity(0.3),
-                        Color(program.sport.colorValue).withOpacity(0.1),
-                      ],
-                    )
-                  : null,
-              color: isSelected ? null : const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected
-                    ? Color(program.sport.colorValue)
-                    : Colors.white.withOpacity(0.1),
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Color(program.sport.colorValue),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.fitness_center,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            program.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${program.totalWeeks} weeks • ${program.sport.displayName}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isSelected)
-                      Icon(
-                        Icons.check_circle,
-                        color: Color(program.sport.colorValue),
-                        size: 28,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  program.description,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    height: 1.5,
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _availablePrograms.length,
+                    itemBuilder: (context, index) {
+                      final program = _availablePrograms[index];
+                      final isSelected = _selectedProgram?.id == program.id;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildProgramCard(
+                          program: program,
+                          isSelected: isSelected,
+                          onTap: () {
+                            setState(() {
+                              _selectedProgram = program;
+                            });
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildFeatureBadge(
-                      Icons.calendar_today,
-                      '${program.totalWeeks} weeks',
-                      program.sport.colorValue,
+                // Bottom Button
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                      onPressed:
+                          _selectedProgram != null ? _selectProgram : null,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.black,
+                        disabledBackgroundColor: Colors.grey.shade800,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Start This Program',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    _buildFeatureBadge(
-                      Icons.trending_up,
-                      'Progressive',
-                      program.sport.colorValue,
-                    ),
-                    _buildFeatureBadge(
-                      Icons.psychology,
-                      'RPE-Based',
-                      program.sport.colorValue,
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildProgramCard({
+    required WorkoutProgram program,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+              : const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.white.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
           ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _getProgramColor(program).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _getProgramIcon(program),
+                    color: _getProgramColor(program),
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Title and info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        program.name,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.white : Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${program.duration} weeks • ${program.sport.displayName}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Selection indicator
+                if (isSelected)
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 28,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Description
+            Text(
+              program.description,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white.withOpacity(0.7),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Tags
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildTag(
+                  context,
+                  Icons.calendar_today,
+                  '${program.duration} weeks',
+                ),
+                _buildTag(
+                  context,
+                  Icons.trending_up,
+                  _getDifficultyText(program),
+                ),
+                _buildTag(
+                  context,
+                  Icons.psychology,
+                  'RPE-Based',
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureBadge(IconData icon, String label, int colorValue) {
+  Widget _buildTag(BuildContext context, IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Color(colorValue).withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Color(colorValue).withOpacity(0.3),
-        ),
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Color(colorValue)),
+          Icon(icon, size: 14, color: Colors.white.withOpacity(0.7)),
           const SizedBox(width: 6),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Color(colorValue),
-              fontWeight: FontWeight.w500,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -292,56 +291,44 @@ class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
     );
   }
 
-  Widget _buildContinueButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: ElevatedButton(
-          onPressed: () {
-            if (selectedProgram != null) {
-              // Activate the program
-              final activatedProgram = selectedProgram!.activate();
+  Color _getProgramColor(WorkoutProgram program) {
+    switch (program.sport) {
+      case Sport.powerlifting:
+        return const Color(0xFFFF6B6B);
+      case Sport.bodybuilding:
+        return const Color(0xFF4ECDC4);
+      case Sport.crossfit:
+        return const Color(0xFFFFBE0B);
+      case Sport.generalFitness:
+        return const Color(0xFFB4F04D);
+      default:
+        return const Color(0xFFB4F04D);
+    }
+  }
 
-              // TODO: Save to repository
-              // For now, just navigate to main navigation
+  IconData _getProgramIcon(WorkoutProgram program) {
+    switch (program.sport) {
+      case Sport.powerlifting:
+        return Icons.fitness_center;
+      case Sport.bodybuilding:
+        return Icons.self_improvement;
+      case Sport.crossfit:
+        return Icons.directions_run;
+      case Sport.generalFitness:
+        return Icons.favorite;
+      default:
+        return Icons.fitness_center;
+    }
+  }
 
-              // Navigate to main navigation (with bottom tabs)
-              Navigator.pushReplacementNamed(
-                context,
-                '/main',
-                arguments: {
-                  'program': activatedProgram,
-                },
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFB4F04D),
-            foregroundColor: Colors.black,
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          child: const Text(
-            'Start This Program',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
+  String _getDifficultyText(WorkoutProgram program) {
+    if (program.name.toLowerCase().contains('beginner')) {
+      return 'Beginner';
+    } else if (program.name.toLowerCase().contains('intermediate')) {
+      return 'Intermediate';
+    } else if (program.name.toLowerCase().contains('advanced')) {
+      return 'Advanced';
+    }
+    return 'All Levels';
   }
 }
