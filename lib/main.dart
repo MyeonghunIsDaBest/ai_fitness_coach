@@ -18,6 +18,7 @@ import 'services/workout_session_service.dart';
 import 'features/program_selection/program_selection_screen.dart';
 import 'features/onboarding/goal_setup_screen.dart';
 import 'features/dashboard/week_dashboard_screen.dart';
+import 'screens/main_navigation/main_navigation_screen.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -81,7 +82,7 @@ class AIFitnessCoachApp extends StatelessWidget {
       title: 'AI Fitness Coach',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
-      initialRoute: '/',
+      initialRoute: '/main',
       onGenerateRoute: (settings) => _generateRoute(settings),
     );
   }
@@ -169,6 +170,9 @@ class AIFitnessCoachApp extends StatelessWidget {
       // ============================================================
       // MAIN APP SCREENS
       // ============================================================
+      case '/main': // 👈 ADD THIS NEW ROUTE
+        return _createRoute(const MainNavigationScreen());
+
       case '/dashboard':
         return _createRoute(const DashboardScreen());
 
