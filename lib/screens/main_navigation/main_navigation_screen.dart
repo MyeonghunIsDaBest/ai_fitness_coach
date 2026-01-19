@@ -5,9 +5,9 @@ import 'analytics_tab.dart';
 import 'profile_tab.dart';
 
 /// Main navigation screen with bottom navigation bar
-/// Entry point after onboarding - handles 4 main app sections
+/// Matches the React App.tsx structure with 5 main tabs
 class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({Key? key}) : super(key: key);
+  const MainNavigationScreen({super.key});
 
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
@@ -16,7 +16,7 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  // Keep all tabs in memory for better performance
+  // Keep all tabs in memory for better performance (like React's IndexedStack pattern)
   final List<Widget> _tabs = const [
     HomeTab(),
     ProgramsTab(),
@@ -31,14 +31,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: _currentIndex,
         children: _tabs,
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNav() {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: const Color(0xFF1E1E1E), // Dark surface
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey.shade800,
+            width: 1,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
@@ -60,22 +68,28 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 index: 0,
               ),
               _buildNavItem(
-                icon: Icons.assignment_outlined,
-                activeIcon: Icons.assignment,
-                label: 'Programs',
+                icon: Icons.fitness_center_outlined,
+                activeIcon: Icons.fitness_center,
+                label: 'Workout',
                 index: 1,
               ),
               _buildNavItem(
-                icon: Icons.analytics_outlined,
-                activeIcon: Icons.analytics,
-                label: 'Analytics',
+                icon: Icons.trending_up_outlined,
+                activeIcon: Icons.trending_up,
+                label: 'Progress',
                 index: 2,
               ),
               _buildNavItem(
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
-                label: 'Profile',
+                icon: Icons.smart_toy_outlined,
+                activeIcon: Icons.smart_toy,
+                label: 'AI Coach',
                 index: 3,
+              ),
+              _buildNavItem(
+                icon: Icons.videocam_outlined,
+                activeIcon: Icons.videocam,
+                label: 'Form Check',
+                index: 4,
               ),
             ],
           ),
@@ -91,42 +105,39 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     required int index,
   }) {
     final isActive = _currentIndex == index;
-    final color = isActive ? const Color(0xFFB4F04D) : Colors.white54;
+    final color = isActive ? const Color(0xFFB4F04D) : Colors.grey;
 
     return Expanded(
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: isActive
-                ? const Color(0xFFB4F04D).withOpacity(0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isActive ? activeIcon : icon,
-                color: color,
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isActive ? activeIcon : icon,
                   color: color,
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  size: 24,
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
