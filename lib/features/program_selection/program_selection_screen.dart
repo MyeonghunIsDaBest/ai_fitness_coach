@@ -1,301 +1,173 @@
 import 'package:flutter/material.dart';
 import '../../core/enums/sport.dart';
-import '../../core/enums/phase.dart';
-import '../../domain/models/workout_program.dart';
-import '../../domain/models/program_week.dart';
-import '../../domain/models/daily_workout.dart';
-import '../../domain/models/exercise.dart';
-import '../../core/enums/lift_type.dart';
-import '../../core/enums/week_type.dart';
 
-/// Program selection screen with animated cards and program templates
+/// Program Selection Screen - Choose training program
+/// Simplified version with built-in program data
+/// TODO: Connect to real program templates when they're created
 class ProgramSelectionScreen extends StatefulWidget {
   final Sport? sport;
 
-  const ProgramSelectionScreen({Key? key, this.sport}) : super(key: key);
+  const ProgramSelectionScreen({
+    super.key,
+    this.sport,
+  });
 
   @override
   State<ProgramSelectionScreen> createState() => _ProgramSelectionScreenState();
 }
 
-class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  WorkoutProgram? selectedProgram;
-  List<WorkoutProgram> availablePrograms = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _animController.forward();
-
-    // Load programs based on sport
-    _loadPrograms();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  void _loadPrograms() {
-    // TODO: Replace with actual program service when ready
-    // For now, create sample programs
-    setState(() {
-      availablePrograms = _getSamplePrograms();
-    });
-  }
-
-  List<WorkoutProgram> _getSamplePrograms() {
-    // Sample beginner program
-    final beginnerProgram = WorkoutProgram.create(
-      name: 'Beginner Linear Progression',
-      sport: widget.sport ?? Sport.powerlifting,
-      description:
-          'Perfect for beginners. Classic 3x per week full-body program focused on the main lifts with progressive overload.',
-      weeks: _generateSampleWeeks(12, isDeload: false),
-      isCustom: false,
-    );
-
-    final intermediateProgram = WorkoutProgram.create(
-      name: 'Intermediate Block Periodization',
-      sport: widget.sport ?? Sport.powerlifting,
-      description:
-          '16-week program with accumulation, intensification, and peaking phases. Ideal for those with 1-2 years of experience.',
-      weeks: _generateSampleWeeks(16, isDeload: true),
-      isCustom: false,
-    );
-
-    final advancedProgram = WorkoutProgram.create(
-      name: 'Advanced DUP',
-      sport: widget.sport ?? Sport.powerlifting,
-      description:
-          'Daily Undulating Periodization for advanced lifters. Varies intensity and volume day-to-day for maximum gains.',
-      weeks: _generateSampleWeeks(12, isDeload: true),
-      isCustom: false,
-    );
-
-    return [beginnerProgram, intermediateProgram, advancedProgram];
-  }
-
-  List<ProgramWeek> _generateSampleWeeks(int weekCount,
-      {bool isDeload = false}) {
-    final weeks = <ProgramWeek>[];
-
-    for (int i = 1; i <= weekCount; i++) {
-      // Every 4th week is a deload if enabled
-      final isDeloadWeek = isDeload && i % 4 == 0;
-
-      weeks.add(
-        isDeloadWeek
-            ? ProgramWeek.deload(
-                weekNumber: i,
-                phase: Phase.hypertrophy,
-                dailyWorkouts: _generateSampleDays(),
-                coachNotes: 'Recovery week - focus on technique',
-              )
-            : ProgramWeek.normal(
-                weekNumber: i,
-                phase: _getPhaseForWeek(i),
-                targetRPEMin: 7.0,
-                targetRPEMax: 8.5,
-                dailyWorkouts: _generateSampleDays(),
-              ),
-      );
-    }
-
-    return weeks;
-  }
-
-  Phase _getPhaseForWeek(int weekNumber) {
-    if (weekNumber <= 4) return Phase.hypertrophy;
-    if (weekNumber <= 8) return Phase.strength;
-    if (weekNumber <= 11) return Phase.power;
-    return Phase.peaking;
-  }
-
-  List<DailyWorkout> _generateSampleDays() {
-    return [
-      DailyWorkout.trainingDay(
-        dayId: 'mon',
-        dayName: 'Monday',
-        dayNumber: 1,
-        focus: 'Upper Body Power',
-        exercises: [
-          Exercise.mainLift(
-            name: 'Bench Press',
-            liftType: LiftType.benchPress,
-            sets: 4,
-            reps: 5,
-            targetRPEMin: 7.5,
-            targetRPEMax: 8.5,
-            order: 0,
-          ),
-          Exercise.accessory(
-            name: 'Bent Over Row',
-            liftType: LiftType.bentOverRow,
-            sets: 3,
-            reps: 8,
-            targetRPEMin: 7.0,
-            targetRPEMax: 8.0,
-            order: 1,
-          ),
-        ],
-      ),
-      DailyWorkout.restDay(
-        dayId: 'tue',
-        dayName: 'Tuesday',
-        dayNumber: 2,
-      ),
-      DailyWorkout.trainingDay(
-        dayId: 'wed',
-        dayName: 'Wednesday',
-        dayNumber: 3,
-        focus: 'Lower Body Power',
-        exercises: [
-          Exercise.mainLift(
-            name: 'Back Squat',
-            liftType: LiftType.squat,
-            sets: 4,
-            reps: 5,
-            targetRPEMin: 7.5,
-            targetRPEMax: 8.5,
-            order: 0,
-          ),
-        ],
-      ),
-    ];
-  }
+class _ProgramSelectionScreenState extends State<ProgramSelectionScreen> {
+  int? _selectedProgramIndex;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Select Your Program'),
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: availablePrograms.isEmpty
-            ? _buildEmptyState()
-            : _buildProgramList(),
-      ),
-      bottomNavigationBar:
-          selectedProgram != null ? _buildContinueButton() : null,
-    );
-  }
+    // Get programs based on sport
+    final programs = _getProgramsForSport(widget.sport);
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0A0A0A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Select Your Program',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Column(
         children: [
-          Icon(
-            Icons.fitness_center,
-            size: 80,
-            color: Colors.white.withOpacity(0.3),
+          // Programs List
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(24.0),
+              itemCount: programs.length,
+              itemBuilder: (context, index) {
+                final program = programs[index];
+                final isSelected = _selectedProgramIndex == index;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: _buildProgramCard(
+                    context,
+                    program,
+                    isSelected,
+                    () {
+                      setState(() {
+                        _selectedProgramIndex = index;
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            'No programs available',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Check back soon for new programs!',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+
+          // Start Button
+          if (_selectedProgramIndex != null)
+            Container(
+              padding: const EdgeInsets.all(24.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final selectedProgram = programs[_selectedProgramIndex!];
+                      // TODO: Pass selected program data to main app
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/main',
+                        arguments: selectedProgram,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB4F04D),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Start This Program',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildProgramList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: availablePrograms.length,
-      itemBuilder: (context, index) {
-        return _buildProgramCard(availablePrograms[index], index);
-      },
-    );
-  }
-
-  Widget _buildProgramCard(WorkoutProgram program, int index) {
-    final isSelected = selectedProgram?.id == program.id;
-    final delay = index * 100;
-
-    return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-          parent: _animController,
-          curve: Interval(
-            delay / 1500,
-            (delay + 500) / 1500,
-            curve: Curves.easeOut,
-          ),
+  Widget _buildProgramCard(
+    BuildContext context,
+    _ProgramInfo program,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected
+              ? const Color(0xFFB4F04D)
+              : Colors.white.withOpacity(0.1),
+          width: isSelected ? 2 : 1,
         ),
       ),
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _animController,
-            curve: Interval(
-              delay / 1500,
-              (delay + 500) / 1500,
-              curve: Curves.easeOut,
-            ),
-          ),
-        ),
-        child: GestureDetector(
-          onTap: () => setState(() => selectedProgram = program),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: isSelected
-                  ? LinearGradient(
-                      colors: [
-                        Color(program.sport.colorValue).withOpacity(0.3),
-                        Color(program.sport.colorValue).withOpacity(0.1),
-                      ],
-                    )
-                  : null,
-              color: isSelected ? null : const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected
-                    ? Color(program.sport.colorValue)
-                    : Colors.white.withOpacity(0.1),
-                width: isSelected ? 2 : 1,
-              ),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header Row
                 Row(
                   children: [
+                    // Icon
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: Color(program.sport.colorValue),
+                        color: program.color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.fitness_center,
-                        color: Colors.white,
+                      child: Icon(
+                        program.icon,
+                        color: program.color,
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 16),
+
+                    // Title and Duration
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,55 +177,61 @@ class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${program.totalWeeks} weeks • ${program.sport.displayName}',
+                            '${program.weeks} weeks • ${program.sportName}',
                             style: TextStyle(
+                              fontSize: 14,
                               color: Colors.white.withOpacity(0.6),
-                              fontSize: 13,
                             ),
                           ),
                         ],
                       ),
                     ),
+
+                    // Selection Indicator
                     if (isSelected)
-                      Icon(
-                        Icons.check_circle,
-                        color: Color(program.sport.colorValue),
-                        size: 28,
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFB4F04D),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.black,
+                        ),
                       ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
+
+                // Description
                 Text(
                   program.description,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.7),
                     height: 1.5,
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
+                // Tags
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _buildFeatureBadge(
-                      Icons.calendar_today,
-                      '${program.totalWeeks} weeks',
-                      program.sport.colorValue,
-                    ),
-                    _buildFeatureBadge(
-                      Icons.trending_up,
-                      'Progressive',
-                      program.sport.colorValue,
-                    ),
-                    _buildFeatureBadge(
-                      Icons.psychology,
-                      'RPE-Based',
-                      program.sport.colorValue,
-                    ),
+                    _buildTag('${program.weeks} weeks', Icons.calendar_today),
+                    _buildTag(program.level, Icons.trending_up),
+                    _buildTag('RPE-Based', Icons.favorite),
                   ],
                 ),
               ],
@@ -364,26 +242,31 @@ class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
     );
   }
 
-  Widget _buildFeatureBadge(IconData icon, String label, int colorValue) {
+  Widget _buildTag(String label, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Color(colorValue).withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF0A0A0A),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Color(colorValue).withOpacity(0.3),
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Color(colorValue)),
+          Icon(
+            icon,
+            size: 14,
+            color: const Color(0xFFB4F04D),
+          ),
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: Color(colorValue),
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -392,46 +275,181 @@ class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
     );
   }
 
-  Widget _buildContinueButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+  // ============================================================================
+  // PROGRAM DATA
+  // ============================================================================
+
+  List<_ProgramInfo> _getProgramsForSport(Sport? sport) {
+    switch (sport) {
+      case Sport.powerlifting:
+        return [
+          _ProgramInfo(
+            id: 'pl_beginner',
+            name: 'Beginner Linear Progression',
+            description:
+                'Perfect for beginners. Classic 3x per week full-body program focused on the main lifts with progressive overload.',
+            weeks: 12,
+            sportName: 'Powerlifting',
+            level: 'Beginner',
+            icon: Icons.trending_up,
+            color: const Color(0xFFFF6B6B),
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: ElevatedButton(
-          onPressed: () {
-            // TODO: Save selected program and navigate to week dashboard
-            Navigator.pushNamed(
-              context,
-              '/week-dashboard',
-              arguments: selectedProgram,
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFB4F04D),
-            foregroundColor: Colors.black,
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+          _ProgramInfo(
+            id: 'pl_intermediate',
+            name: 'Intermediate Block Periodization',
+            description:
+                '16-week program with accumulation, intensification, and peaking phases. Ideal for those with 1-2 years of experience.',
+            weeks: 16,
+            sportName: 'Powerlifting',
+            level: 'Intermediate',
+            icon: Icons.analytics,
+            color: const Color(0xFFFF6B6B),
           ),
-          child: const Text(
-            'Start This Program',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          _ProgramInfo(
+            id: 'pl_advanced',
+            name: 'Advanced DUP',
+            description:
+                'Daily Undulating Periodization for advanced lifters. Varies intensity and volume day-to-day for maximum gains.',
+            weeks: 12,
+            sportName: 'Powerlifting',
+            level: 'Advanced',
+            icon: Icons.speed,
+            color: const Color(0xFFFF6B6B),
           ),
-        ),
-      ),
-    );
+        ];
+
+      case Sport.bodybuilding:
+        return [
+          _ProgramInfo(
+            id: 'bb_ppl',
+            name: 'Push Pull Legs Split',
+            description:
+                'Classic 6-day split focusing on volume and muscle hypertrophy. Perfect for building mass and aesthetics.',
+            weeks: 12,
+            sportName: 'Bodybuilding',
+            level: 'Intermediate',
+            icon: Icons.fitness_center,
+            color: const Color(0xFF4ECDC4),
+          ),
+          _ProgramInfo(
+            id: 'bb_upper_lower',
+            name: 'Upper Lower Split',
+            description:
+                '4-day split alternating upper and lower body. Great for balanced development and recovery.',
+            weeks: 10,
+            sportName: 'Bodybuilding',
+            level: 'Beginner',
+            icon: Icons.assessment,
+            color: const Color(0xFF4ECDC4),
+          ),
+        ];
+
+      case Sport.olympicLifting:
+        return [
+          _ProgramInfo(
+            id: 'ol_beginner',
+            name: 'Olympic Lifting Fundamentals',
+            description:
+                'Learn the snatch and clean & jerk with proper technique. Focus on movement quality and strength building.',
+            weeks: 8,
+            sportName: 'Olympic Lifting',
+            level: 'Beginner',
+            icon: Icons.bolt,
+            color: const Color(0xFFFFD93D),
+          ),
+          _ProgramInfo(
+            id: 'ol_competition',
+            name: 'Competition Prep Program',
+            description:
+                'Advanced program preparing for competition. Includes specificity work and peaking strategy.',
+            weeks: 12,
+            sportName: 'Olympic Lifting',
+            level: 'Advanced',
+            icon: Icons.emoji_events,
+            color: const Color(0xFFFFD93D),
+          ),
+        ];
+
+      case Sport.crossfit:
+        return [
+          _ProgramInfo(
+            id: 'cf_essentials',
+            name: 'CrossFit Essentials',
+            description:
+                'Build your foundation with varied functional movements. Focus on cardio, strength, and gymnastics.',
+            weeks: 8,
+            sportName: 'CrossFit',
+            level: 'Beginner',
+            icon: Icons.directions_run,
+            color: const Color(0xFFB4F04D),
+          ),
+          _ProgramInfo(
+            id: 'cf_competition',
+            name: 'Competition Ready',
+            description:
+                'High-intensity program for competitive CrossFit athletes. Includes benchmark WODs and skill work.',
+            weeks: 12,
+            sportName: 'CrossFit',
+            level: 'Advanced',
+            icon: Icons.whatshot,
+            color: const Color(0xFFB4F04D),
+          ),
+        ];
+
+      case Sport.generalFitness:
+      default:
+        return [
+          _ProgramInfo(
+            id: 'gf_general',
+            name: 'General Fitness Program',
+            description:
+                'Well-rounded program focusing on overall health, strength, and conditioning. Perfect for general wellness.',
+            weeks: 10,
+            sportName: 'General Fitness',
+            level: 'All Levels',
+            icon: Icons.favorite,
+            color: const Color(0xFF95E1D3),
+          ),
+          _ProgramInfo(
+            id: 'gf_strength',
+            name: 'Strength & Conditioning',
+            description:
+                'Balanced approach to building strength and cardiovascular fitness. Great for athletes in any sport.',
+            weeks: 12,
+            sportName: 'General Fitness',
+            level: 'Intermediate',
+            icon: Icons.fitness_center,
+            color: const Color(0xFF95E1D3),
+          ),
+        ];
+    }
   }
+}
+
+// ============================================================================
+// HELPER CLASS
+// ============================================================================
+
+/// Program information for display
+/// TODO: Replace with actual TrainingProgram model when templates are created
+class _ProgramInfo {
+  final String id;
+  final String name;
+  final String description;
+  final int weeks;
+  final String sportName;
+  final String level;
+  final IconData icon;
+  final Color color;
+
+  _ProgramInfo({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.weeks,
+    required this.sportName,
+    required this.level,
+    required this.icon,
+    required this.color,
+  });
 }
