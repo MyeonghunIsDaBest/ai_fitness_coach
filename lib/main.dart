@@ -79,173 +79,183 @@ class AIFitnessCoachApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AI Fitness Coach',
-      debugShowCheckedModeBanner: false,
+      title: 'FitCoach AI',
       theme: _buildTheme(),
-      initialRoute: '/main',
-      onGenerateRoute: (settings) => _generateRoute(settings),
-    );
-  }
 
-  ThemeData _buildTheme() {
-    return ThemeData(
-      brightness: Brightness.dark,
-      primaryColor: const Color(0xFF1E1E1E),
-      scaffoldBackgroundColor: const Color(0xFF121212),
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFFB4F04D),
-        secondary: Color(0xFF00D9FF),
-        surface: Color(0xFF1E1E1E),
-        error: Color(0xFFFF6B6B),
-      ),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          letterSpacing: -0.5,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          letterSpacing: -0.3,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          color: Colors.white70,
-          height: 1.5,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          color: Colors.white60,
-          height: 1.4,
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFB4F04D),
-          foregroundColor: Colors.black,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      cardTheme: const CardTheme(
-        color: Color(0xFF1E1E1E),
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-      ),
-    );
-  }
+      // Start with splash screen (your existing flow)
+      home: const SplashScreen(),
 
-  Route? _generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      // ============================================================
-      // ONBOARDING FLOW
-      // ============================================================
-      case '/':
-        return _createRoute(const SplashScreen());
+      // Define named routes
+      routes: {
+        '/onboarding': (context) => const OnboardingScreen(),
+        '/sport-selection': (context) => const SportSelectionScreen(),
+        '/goal-setup': (context) => const GoalSetupScreen(),
+        '/program-selection': (context) => const ProgramSelectionScreen(),
 
-      case '/onboarding':
-        return _createRoute(const OnboardingScreen());
-
-      case '/sport-selection':
-        return _createRoute(const SportSelectionScreen());
-
-      case '/goal-setup':
-        final sport = settings.arguments as Sport?;
-        return _createRoute(GoalSetupScreen(selectedSport: sport));
-
-      // ============================================================
-      // AUTHENTICATION (Future Feature)
-      // ============================================================
-      case '/auth':
-        final userData = settings.arguments as Map<String, dynamic>?;
-        return _createRoute(AuthScreen(userData: userData));
-
-      // ============================================================
-      // MAIN APP SCREENS
-      // ============================================================
-      case '/main': // 👈 ADD THIS NEW ROUTE
-        return _createRoute(const MainNavigationScreen());
-
-      case '/dashboard':
-        return _createRoute(const DashboardScreen());
-
-      case '/week-dashboard':
-        final args = settings.arguments as Map<String, dynamic>?;
-        return _createRoute(WeekDashboardScreen(
-          program: args?['program'],
-          currentWeek: args?['currentWeek'] ?? 1,
-        ));
-
-      case '/program-selection':
-        final sport = settings.arguments as Sport?;
-        return _createRoute(ProgramSelectionScreen(sport: sport));
-
-      // ============================================================
-      // WORKOUT FEATURES
-      // ============================================================
-      case '/workout-logger':
-        final args = settings.arguments as Map<String, dynamic>?;
-        return _createRoute(WorkoutLoggerScreen(
-          program: args?['program'],
-          week: args?['week'],
-          day: args?['day'],
-          workout: args?['workout'],
-        ));
-
-      case '/history':
-        return _createRoute(const HistoryScreen());
-
-      case '/workout-detail':
-        final sessionId = settings.arguments as String?;
-        return _createRoute(WorkoutDetailScreen(sessionId: sessionId));
-
-      // ============================================================
-      // AI FEATURES
-      // ============================================================
-      case '/chat':
-        return _createRoute(const ChatScreen());
-
-      case '/form-check':
-        return _createRoute(const FormCheckScreen());
-
-      // ============================================================
-      // SETTINGS & PROFILE
-      // ============================================================
-      case '/settings':
-        return _createRoute(const SettingsScreen());
-
-      case '/profile':
-        return _createRoute(const ProfileScreen());
-
-      default:
-        return _createRoute(const NotFoundScreen());
-    }
-  }
-
-  Route _createRoute(Widget page) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOutCubic;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
+        // ⬇️ ADD THIS ROUTE - This is your main app after onboarding
+        '/main': (context) => const MainNavigationScreen(),
       },
-      transitionDuration: const Duration(milliseconds: 400),
     );
   }
+}
+
+ThemeData _buildTheme() {
+  return ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: const Color(0xFF1E1E1E),
+    scaffoldBackgroundColor: const Color(0xFF121212),
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFFB4F04D),
+      secondary: Color(0xFF00D9FF),
+      surface: Color(0xFF1E1E1E),
+      error: Color(0xFFFF6B6B),
+    ),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        letterSpacing: -0.5,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        letterSpacing: -0.3,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        color: Colors.white70,
+        height: 1.5,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        color: Colors.white60,
+        height: 1.4,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFB4F04D),
+        foregroundColor: Colors.black,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    ),
+    cardTheme: const CardTheme(
+      color: Color(0xFF1E1E1E),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+    ),
+  );
+}
+
+Route? _generateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    // ============================================================
+    // ONBOARDING FLOW
+    // ============================================================
+    case '/':
+      return _createRoute(const SplashScreen());
+
+    case '/onboarding':
+      return _createRoute(const OnboardingScreen());
+
+    case '/sport-selection':
+      return _createRoute(const SportSelectionScreen());
+
+    case '/goal-setup':
+      final sport = settings.arguments as Sport?;
+      return _createRoute(GoalSetupScreen(selectedSport: sport));
+
+    // ============================================================
+    // AUTHENTICATION (Future Feature)
+    // ============================================================
+    case '/auth':
+      final userData = settings.arguments as Map<String, dynamic>?;
+      return _createRoute(AuthScreen(userData: userData));
+
+    // ============================================================
+    // MAIN APP SCREENS
+    // ============================================================
+    case '/main': // 👈 ADD THIS NEW ROUTE
+      return _createRoute(const MainNavigationScreen());
+
+    case '/dashboard':
+      return _createRoute(const DashboardScreen());
+
+    case '/week-dashboard':
+      final args = settings.arguments as Map<String, dynamic>?;
+      return _createRoute(WeekDashboardScreen(
+        program: args?['program'],
+        currentWeek: args?['currentWeek'] ?? 1,
+      ));
+
+    case '/program-selection':
+      final sport = settings.arguments as Sport?;
+      return _createRoute(ProgramSelectionScreen(sport: sport));
+
+    // ============================================================
+    // WORKOUT FEATURES
+    // ============================================================
+    case '/workout-logger':
+      final args = settings.arguments as Map<String, dynamic>?;
+      return _createRoute(WorkoutLoggerScreen(
+        program: args?['program'],
+        week: args?['week'],
+        day: args?['day'],
+        workout: args?['workout'],
+      ));
+
+    case '/history':
+      return _createRoute(const HistoryScreen());
+
+    case '/workout-detail':
+      final sessionId = settings.arguments as String?;
+      return _createRoute(WorkoutDetailScreen(sessionId: sessionId));
+
+    // ============================================================
+    // AI FEATURES
+    // ============================================================
+    case '/chat':
+      return _createRoute(const ChatScreen());
+
+    case '/form-check':
+      return _createRoute(const FormCheckScreen());
+
+    // ============================================================
+    // SETTINGS & PROFILE
+    // ============================================================
+    case '/settings':
+      return _createRoute(const SettingsScreen());
+
+    case '/profile':
+      return _createRoute(const ProfileScreen());
+
+    default:
+      return _createRoute(const NotFoundScreen());
+  }
+}
+
+Route _createRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOutCubic;
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 400),
+  );
 }
 
 // ============================================================================
@@ -416,6 +426,7 @@ class OnboardingScreen extends StatelessWidget {
                 'Track progress with detailed analytics',
               ),
               const Spacer(),
+              // Get Started Button
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, '/sport-selection');
@@ -426,6 +437,20 @@ class OnboardingScreen extends StatelessWidget {
                 child: const Text(
                   'Get Started',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Skip to Main App - For Testing
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/main');
+                },
+                child: const Text(
+                  'Skip to Main App (Testing)',
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
