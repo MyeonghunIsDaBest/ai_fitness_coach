@@ -124,6 +124,7 @@ class RPEAnalyticsService {
         trend: 'Insufficient Data',
         slope: 0.0,
         interpretation: 'Need at least 3 data points',
+        trendColor: const Color(0xFF9E9E9E), // Grey for insufficient data
       );
     }
 
@@ -156,11 +157,22 @@ class RPEAnalyticsService {
       interpretation = 'RPE is stable - you\'re maintaining good consistency.';
     }
 
+    // Determine trend color
+    Color trendColor;
+    if (slope > 0.3) {
+      trendColor = const Color(0xFFFF6B6B); // Red for concerning
+    } else if (slope < -0.3) {
+      trendColor = const Color(0xFF4ECDC4); // Green for positive
+    } else {
+      trendColor = const Color(0xFFFFE66D); // Yellow for stable
+    }
+
     return RPETrendAnalysis(
       exerciseName: exerciseName,
       trend: trend,
       slope: slope,
       interpretation: interpretation,
+      trendColor: trendColor,
     );
   }
 
@@ -198,18 +210,4 @@ class RPEAnalyticsService {
 
     return result;
   }
-}
-
-class RPETrendAnalysis {
-  final String exerciseName;
-  final String trend;
-  final double slope;
-  final String interpretation;
-
-  const RPETrendAnalysis({
-    required this.exerciseName,
-    required this.trend,
-    required this.slope,
-    required this.interpretation,
-  });
 }

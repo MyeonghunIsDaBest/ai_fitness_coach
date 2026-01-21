@@ -10,10 +10,17 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # State Management (CRITICAL for Day 1)
+  # State Management (Riverpod 2.x with code generation)
   flutter_riverpod: ^2.6.1          # Latest stable version
   riverpod_annotation: ^2.6.1       # Code generation support
   flutter_hooks: ^0.20.3            # Hooks for cleaner widgets
+
+  # Navigation (GoRouter for declarative routing)
+  go_router: ^13.0.0                # Type-safe routing
+
+  # Code Generation Utilities
+  freezed_annotation: ^2.4.1        # Immutable models
+  json_annotation: ^4.8.1           # JSON serialization
   
   # Local Storage (CRITICAL for Day 2)
   hive: ^2.2.3
@@ -46,11 +53,15 @@ dev_dependencies:
   hive_generator: ^2.0.1
   build_runner: ^2.4.7              # Updated version
   
-  # Riverpod Code Generation (Day 1)
-  riverpod_generator: ^2.3.9        # NEW: For code generation
-  custom_lint: ^0.5.7               # NEW: Linting support
-  riverpod_lint: ^2.3.7             # NEW: Riverpod-specific lints
-  
+  # Riverpod Code Generation
+  riverpod_generator: ^2.3.9        # For code generation
+  custom_lint: ^0.5.7               # Linting support
+  riverpod_lint: ^2.3.7             # Riverpod-specific lints
+
+  # Code Generation (Freezed & JSON)
+  freezed: ^2.4.6                   # Immutable code generation
+  json_serializable: ^6.7.1         # JSON serialization
+
   # Testing
   mockito: ^5.4.4                   # Mock objects for tests
   

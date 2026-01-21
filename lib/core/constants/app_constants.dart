@@ -130,17 +130,6 @@ class AppConstants {
   static const bool enableBetaFeatures = false;
 
   // ==========================================
-  // COLOR VALUES (Fallback if Theme Unavailable)
-  // ==========================================
-  static const int primaryColorValue = 0xFFB4F04D;
-  static const int secondaryColorValue = 0xFF00D9FF;
-  static const int errorColorValue = 0xFFFF6B6B;
-  static const int successColorValue = 0xFF4ECDC4;
-  static const int warningColorValue = 0xFFFFE66D;
-  static const int backgroundColorValue = 0xFF121212;
-  static const int surfaceColorValue = 0xFF1E1E1E;
-
-  // ==========================================
   // TRAINING DEFAULTS
   // ==========================================
   static const double defaultBodyweightKg = 70.0;

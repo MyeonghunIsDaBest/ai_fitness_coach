@@ -11,10 +11,12 @@ import '../../domain/models/workout_program.dart';
 import '../../domain/models/athlete_profile.dart';
 import '../../domain/models/daily_workout.dart';
 import '../../domain/models/logged_set.dart';
+import '../../domain/models/chart_data.dart';
 
 // Data
 import '../../data/repositories/training_repository_impl.dart';
 import '../../data/program_templates.dart';
+import '../../data/local/hive_service.dart';
 
 // Services
 import '../../services/program_service.dart';
@@ -22,9 +24,6 @@ import '../../services/rpe_feedback_service.dart';
 import '../../services/progression_service.dart';
 import '../../services/workout_session_service.dart';
 import '../../services/rpe_analytics_service.dart';
-
-// Local Storage
-import '../local/hive_service.dart';
 
 // ==========================================
 // LOCAL STORAGE PROVIDERS
@@ -36,24 +35,24 @@ final hiveServiceProvider = Provider<HiveService>((ref) {
 });
 
 /// Hive box providers for type-safe access
-final workoutBoxProvider = Provider<Box>((ref) {
-  return Hive.box('workouts');
+final workoutBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
+  return Hive.box<Map<dynamic, dynamic>>('workouts');
 });
 
-final programBoxProvider = Provider<Box>((ref) {
-  return Hive.box('programs');
+final programBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
+  return Hive.box<Map<dynamic, dynamic>>('programs');
 });
 
-final profileBoxProvider = Provider<Box>((ref) {
-  return Hive.box('profiles');
+final profileBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
+  return Hive.box<Map<dynamic, dynamic>>('profiles');
 });
 
-final sessionBoxProvider = Provider<Box>((ref) {
-  return Hive.box('sessions');
+final sessionBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
+  return Hive.box<Map<dynamic, dynamic>>('sessions');
 });
 
-final settingsBoxProvider = Provider<Box>((ref) {
-  return Hive.box('settings');
+final settingsBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
+  return Hive.box<Map<dynamic, dynamic>>('settings');
 });
 
 // ==========================================

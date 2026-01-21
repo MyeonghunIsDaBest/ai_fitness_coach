@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../core/enums/sport.dart';
+import '../../core/theme/color_schemes.dart';
 import '../../domain/models/workout_program.dart';
 import '../../data/templates/powerlifting_templates.dart';
 import '../../data/templates/bodybuilding_templates.dart';
@@ -292,17 +293,20 @@ class _ProgramSelectionScreenState extends State<ProgramSelectionScreen> {
   }
 
   Color _getProgramColor(WorkoutProgram program) {
+    final colorScheme = Theme.of(context).colorScheme;
     switch (program.sport) {
       case Sport.powerlifting:
-        return const Color(0xFFFF6B6B);
+        return colorScheme.sportPowerlifting;
       case Sport.bodybuilding:
-        return const Color(0xFF4ECDC4);
+        return colorScheme.sportBodybuilding;
       case Sport.crossfit:
-        return const Color(0xFFFFBE0B);
+        return colorScheme.sportCrossfit;
+      case Sport.olympicLifting:
+        return colorScheme.sportOlympicLifting;
       case Sport.generalFitness:
-        return const Color(0xFFB4F04D);
+        return colorScheme.sportGeneralFitness;
       default:
-        return const Color(0xFFB4F04D);
+        return colorScheme.primary;
     }
   }
 

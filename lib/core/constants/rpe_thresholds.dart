@@ -32,6 +32,10 @@ class RPEThresholds {
   // ==========================================
   // COLOR MAPPING
   // ==========================================
+
+  /// DEPRECATED: Use Theme.of(context).colorScheme.getRPEColor(rpe) instead
+  /// This provides theme-aware colors that respect light/dark mode
+  @Deprecated('Use ColorScheme.getRPEColor() extension from color_schemes.dart')
   static Color getRPEColor(double rpe) {
     if (rpe <= veryLight) return Colors.blue;
     if (rpe <= light) return Colors.green;

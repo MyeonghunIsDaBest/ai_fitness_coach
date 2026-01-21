@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/color_schemes.dart';
 
 /// ============================================================================
 /// PROGRESS BAR - progress.tsx → Flutter
@@ -22,14 +23,15 @@ class CustomProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(4),
       child: LinearProgressIndicator(
         value: value.clamp(0.0, 1.0),
         backgroundColor:
-            backgroundColor ?? const Color(0xFFB4F04D).withOpacity(0.2),
+            backgroundColor ?? colorScheme.primary.withOpacity(0.2),
         valueColor: AlwaysStoppedAnimation<Color>(
-          color ?? const Color(0xFFB4F04D),
+          color ?? colorScheme.primary,
         ),
         minHeight: height,
       ),
@@ -63,12 +65,13 @@ class CustomSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SliderTheme(
       data: SliderThemeData(
-        activeTrackColor: const Color(0xFFB4F04D),
-        inactiveTrackColor: Colors.grey.shade800,
-        thumbColor: const Color(0xFFB4F04D),
-        overlayColor: const Color(0xFFB4F04D).withOpacity(0.2),
+        activeTrackColor: colorScheme.primary,
+        inactiveTrackColor: colorScheme.surfaceContainerHighest,
+        thumbColor: colorScheme.primary,
+        overlayColor: colorScheme.primary.withOpacity(0.2),
         trackHeight: 4,
         thumbShape: const RoundSliderThumbShape(
           enabledThumbRadius: 8,
@@ -104,13 +107,14 @@ class CustomSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Switch(
       value: value,
       onChanged: enabled ? onChanged : null,
-      activeColor: const Color(0xFFB4F04D),
-      activeTrackColor: const Color(0xFFB4F04D).withOpacity(0.5),
-      inactiveThumbColor: Colors.grey.shade400,
-      inactiveTrackColor: Colors.grey.shade700,
+      activeColor: colorScheme.primary,
+      activeTrackColor: colorScheme.primary.withOpacity(0.5),
+      inactiveThumbColor: colorScheme.onSurfaceVariant,
+      inactiveTrackColor: colorScheme.surfaceContainerHighest,
     );
   }
 }
@@ -132,6 +136,7 @@ class LabeledSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () => onChanged?.call(!value),
       child: Padding(
@@ -144,10 +149,10 @@ class LabeledSwitch extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   if (description != null) ...[
@@ -156,7 +161,7 @@ class LabeledSwitch extends StatelessWidget {
                       description!,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade400,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -194,20 +199,21 @@ class CustomTabBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.all(4),
       child: TabBar(
         controller: controller,
         indicator: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
         ),
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.grey.shade400,
+        labelColor: colorScheme.onSurface,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
         dividerColor: Colors.transparent,
         tabs: tabs.map((tab) => Tab(text: tab)).toList(),
       ),
@@ -237,17 +243,20 @@ class CustomSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final defaultColor = color ?? colorScheme.outline.withOpacity(0.3);
+
     if (direction == Axis.horizontal) {
       return Divider(
         thickness: thickness,
-        color: color ?? Colors.grey.shade800,
+        color: defaultColor,
         indent: indent,
         endIndent: endIndent,
       );
     } else {
       return VerticalDivider(
         thickness: thickness,
-        color: color ?? Colors.grey.shade800,
+        color: defaultColor,
         indent: indent,
         endIndent: endIndent,
       );
@@ -296,6 +305,10 @@ class _SkeletonState extends State<Skeleton>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.surfaceContainerHighest;
+    final highlightColor = colorScheme.surface;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -305,9 +318,9 @@ class _SkeletonState extends State<Skeleton>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.grey.shade800,
-                Colors.grey.shade700,
-                Colors.grey.shade800,
+                baseColor,
+                highlightColor,
+                baseColor,
               ],
               stops: const [0.0, 0.5, 1.0],
               begin: Alignment(-1.0 - _controller.value * 2, 0),
@@ -378,15 +391,16 @@ class CustomTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Tooltip(
       message: message,
       triggerMode: triggerMode,
       decoration: BoxDecoration(
-        color: const Color(0xFFB4F04D),
+        color: colorScheme.primary,
         borderRadius: BorderRadius.circular(6),
       ),
-      textStyle: const TextStyle(
-        color: Colors.black,
+      textStyle: TextStyle(
+        color: colorScheme.onPrimary,
         fontSize: 12,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -415,9 +429,10 @@ class ToggleButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(2),
@@ -434,7 +449,7 @@ class ToggleButtons extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color:
-                      isSelected ? const Color(0xFF1E1E1E) : Colors.transparent,
+                      isSelected ? colorScheme.surface : Colors.transparent,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -444,7 +459,7 @@ class ToggleButtons extends StatelessWidget {
                       Icon(
                         icons![index],
                         size: 16,
-                        color: isSelected ? Colors.white : Colors.grey,
+                        color: isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -454,7 +469,7 @@ class ToggleButtons extends StatelessWidget {
                         fontSize: 14,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? Colors.white : Colors.grey,
+                        color: isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -486,20 +501,21 @@ class CustomTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          headingTextStyle: const TextStyle(
+          headingTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: colorScheme.onSurface,
           ),
           dataTextStyle: TextStyle(
-            color: Colors.grey.shade300,
+            color: colorScheme.onSurfaceVariant,
           ),
           columns: columns.map((col) => DataColumn(label: Text(col))).toList(),
           rows: rows.asMap().entries.map((entry) {
@@ -544,16 +560,17 @@ class CustomTextArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
           Text(
             label!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -564,29 +581,29 @@ class CustomTextArea extends StatelessWidget {
           minLines: minLines,
           maxLength: maxLength,
           onChanged: onChanged,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Colors.white,
+            color: colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: Colors.grey.shade500,
+              color: colorScheme.onSurfaceVariant,
             ),
             filled: true,
-            fillColor: Colors.grey.shade900,
+            fillColor: colorScheme.surfaceContainerHighest,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade800),
+              borderSide: BorderSide(color: colorScheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade800),
+              borderSide: BorderSide(color: colorScheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFB4F04D),
+              borderSide: BorderSide(
+                color: colorScheme.primary,
                 width: 2,
               ),
             ),

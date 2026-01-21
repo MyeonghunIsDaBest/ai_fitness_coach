@@ -2,6 +2,9 @@ import '../../domain/models/logged_set.dart';
 import '../../domain/models/workout_program.dart';
 import '../../domain/models/program_week.dart';
 import '../../domain/models/athlete_profile.dart';
+import '../../domain/models/workout_session.dart';
+
+export '../../domain/models/workout_session.dart';
 
 /// Repository interface for training-related data operations
 /// Defines contracts for data access without specifying implementation
@@ -169,82 +172,6 @@ abstract class TrainingRepository {
     String exerciseName, {
     int limit = 10,
   });
-}
-
-/// Data class representing a workout session
-class WorkoutSession {
-  final String id;
-  final String programId;
-  final int weekNumber;
-  final int dayNumber;
-  final String workoutName;
-  final DateTime startTime;
-  final DateTime? endTime;
-  final List<LoggedSet> sets;
-  final bool isCompleted;
-  final String? notes;
-
-  const WorkoutSession({
-    required this.id,
-    required this.programId,
-    required this.weekNumber,
-    required this.dayNumber,
-    required this.workoutName,
-    required this.startTime,
-    this.endTime,
-    required this.sets,
-    this.isCompleted = false,
-    this.notes,
-  });
-
-  /// Calculate session duration
-  Duration? get duration {
-    if (endTime == null) return null;
-    return endTime!.difference(startTime);
-  }
-
-  /// Calculate average RPE
-  double get averageRPE {
-    if (sets.isEmpty) return 0.0;
-    final rpes = sets.map((s) => s.rpe).toList();
-    return rpes.reduce((a, b) => a + b) / rpes.length;
-  }
-
-  /// Calculate total volume
-  double get totalVolume {
-    return sets.fold(0.0, (sum, set) => sum + set.volume);
-  }
-
-  /// JSON serialization
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'programId': programId,
-      'weekNumber': weekNumber,
-      'dayNumber': dayNumber,
-      'workoutName': workoutName,
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime?.toIso8601String(),
-      'sets': sets.map((s) => s.toJson()).toList(),
-      'isCompleted': isCompleted,
-      'notes': notes,
-    };
-  }
-
-  factory WorkoutSession.fromJson(Map<String, dynamic> json) {
-    return WorkoutSession(
-      id: json['id'],
-      programId: json['programId'],
-      weekNumber: json['weekNumber'],
-      dayNumber: json['dayNumber'],
-      workoutName: json['workoutName'],
-      startTime: DateTime.parse(json['startTime']),
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
-      sets: (json['sets'] as List).map((s) => LoggedSet.fromJson(s)).toList(),
-      isCompleted: json['isCompleted'] ?? false,
-      notes: json['notes'],
-    );
-  }
 }
 
 /// Data class for RPE trends over time
