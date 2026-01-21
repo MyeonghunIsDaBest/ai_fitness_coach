@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/enums/sport.dart';
 import '../../../domain/models/workout_program.dart';
@@ -193,10 +194,8 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen>
                 weeksTotal: program.weeks.length,
                 weeksCompleted: currentWeek - 1,
                 isActive: true,
-                onTap: () {},
-                onStart: () {
-                  // Navigate to today's workout
-                },
+                onTap: () => context.push('/program/${program.id}'),
+                onStart: () => context.push('/workout'),
               ),
               const SizedBox(height: 24),
 
@@ -242,9 +241,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen>
                           estimatedDuration: workout.estimatedDurationMinutes,
                           isCompleted: isCompleted,
                           isActive: isToday && !isCompleted,
-                          onTap: () {
-                            // Navigate to workout detail
-                          },
+                          onTap: () => context.push('/workout'),
                         ),
                       );
                     }).toList(),
@@ -364,6 +361,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen>
                           sport: program.sport.displayName,
                           description: program.description ?? '',
                           weeksTotal: program.weeks.length,
+                          onTap: () => context.push('/program/${program.id}'),
                           onStart: () => _selectProgram(program),
                         ),
                       )),

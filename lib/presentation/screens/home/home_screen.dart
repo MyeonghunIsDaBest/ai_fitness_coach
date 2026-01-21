@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/providers/providers.dart';
 import '../../../domain/models/daily_workout.dart';
 import '../../widgets/design_system/atoms/atoms.dart';
@@ -191,9 +192,7 @@ class HomeScreen extends ConsumerWidget {
                 // Start workout
                 _startWorkout(context, ref, workout);
               },
-              onTap: () {
-                // Navigate to workout detail
-              },
+              onTap: () => context.push('/workout'),
             );
           },
           loading: () => _buildLoadingCard(colorScheme),
@@ -287,7 +286,7 @@ class HomeScreen extends ConsumerWidget {
       );
 
       if (context.mounted) {
-        Navigator.pushNamed(context, '/workout');
+        context.push('/workout');
       }
     } catch (e) {
       if (context.mounted) {
@@ -375,9 +374,7 @@ class HomeScreen extends ConsumerWidget {
         SectionHeader(
           title: 'Recent Workouts',
           action: TextButton(
-            onPressed: () {
-              // Navigate to history
-            },
+            onPressed: () => context.push('/history'),
             child: const Text('See All'),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/enums/sport.dart';
 import '../../../core/providers/providers.dart';
 import '../../../domain/models/athlete_profile.dart';
@@ -56,13 +57,13 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.fitness_center,
                     title: 'Training Preferences',
                     subtitle: 'Rest times, units, RPE scale',
-                    onTap: () {},
+                    onTap: () => context.push('/settings'),
                   ),
                   _MenuItem(
                     icon: Icons.history,
                     title: 'Workout History',
                     subtitle: 'View all past workouts',
-                    onTap: () {},
+                    onTap: () => context.push('/history'),
                   ),
                   _MenuItem(
                     icon: Icons.emoji_events,
@@ -107,22 +108,10 @@ class ProfileScreen extends ConsumerWidget {
                 title: 'App Settings',
                 items: [
                   _MenuItem(
-                    icon: Icons.palette_outlined,
-                    title: 'Appearance',
-                    subtitle: 'Theme, colors',
-                    onTap: () {},
-                  ),
-                  _MenuItem(
-                    icon: Icons.notifications_outlined,
-                    title: 'Notifications',
-                    subtitle: 'Reminders, alerts',
-                    onTap: () {},
-                  ),
-                  _MenuItem(
-                    icon: Icons.backup_outlined,
-                    title: 'Backup & Sync',
-                    subtitle: 'Data management',
-                    onTap: () {},
+                    icon: Icons.settings_outlined,
+                    title: 'Settings',
+                    subtitle: 'Theme, units, notifications',
+                    onTap: () => context.push('/settings'),
                   ),
                 ],
               ),

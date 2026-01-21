@@ -75,12 +75,12 @@ class ProgramCard extends StatelessWidget {
     required this.description,
     required this.weeksTotal,
     this.isCustom = false,
+    this.onTap,
     required this.onStart,
     this.sportColor,
   })  : weeksCompleted = 0,
         isActive = false,
         startDate = null,
-        onTap = null,
         onEdit = null;
 
   @override

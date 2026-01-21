@@ -3,6 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../presentation/screens/main/main_shell.dart';
 import '../../presentation/screens/workout/workout_screen.dart';
+import '../../presentation/screens/workout/workout_summary_screen.dart';
+import '../../presentation/screens/programs/program_detail_screen.dart';
+import '../../presentation/screens/history/workout_history_screen.dart';
+import '../../presentation/screens/settings/settings_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -31,7 +35,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/workout/summary',
         name: 'workout-summary',
-        builder: (context, state) => const _WorkoutSummaryPlaceholder(),
+        builder: (context, state) => const WorkoutSummaryScreen(),
       ),
 
       // Program detail screen
@@ -40,8 +44,15 @@ GoRouter router(RouterRef ref) {
         name: 'program-detail',
         builder: (context, state) {
           final programId = state.pathParameters['id'];
-          return _ProgramDetailPlaceholder(programId: programId);
+          return ProgramDetailScreen(programId: programId ?? '');
         },
+      ),
+
+      // Workout history screen
+      GoRoute(
+        path: '/history',
+        name: 'workout-history',
+        builder: (context, state) => const WorkoutHistoryScreen(),
       ),
 
       // Exercise detail screen
@@ -58,19 +69,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/settings',
         name: 'settings',
-        builder: (context, state) => const _SettingsPlaceholder(),
-        routes: [
-          GoRoute(
-            path: 'profile',
-            name: 'settings-profile',
-            builder: (context, state) => const _ProfileEditPlaceholder(),
-          ),
-          GoRoute(
-            path: 'training',
-            name: 'settings-training',
-            builder: (context, state) => const _TrainingPrefsPlaceholder(),
-          ),
-        ],
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
 
@@ -110,33 +109,7 @@ GoRouter router(RouterRef ref) {
   );
 }
 
-// Placeholder screens - to be implemented
-class _WorkoutSummaryPlaceholder extends StatelessWidget {
-  const _WorkoutSummaryPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Workout Summary')),
-      body: const Center(child: Text('Workout Summary - Coming Soon')),
-    );
-  }
-}
-
-class _ProgramDetailPlaceholder extends StatelessWidget {
-  final String? programId;
-
-  const _ProgramDetailPlaceholder({this.programId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Program Details')),
-      body: Center(child: Text('Program: $programId')),
-    );
-  }
-}
-
+// Placeholder screen - to be implemented
 class _ExerciseDetailPlaceholder extends StatelessWidget {
   final String? exerciseId;
 
@@ -147,42 +120,6 @@ class _ExerciseDetailPlaceholder extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Exercise Details')),
       body: Center(child: Text('Exercise: $exerciseId')),
-    );
-  }
-}
-
-class _SettingsPlaceholder extends StatelessWidget {
-  const _SettingsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: const Center(child: Text('Settings - Coming Soon')),
-    );
-  }
-}
-
-class _ProfileEditPlaceholder extends StatelessWidget {
-  const _ProfileEditPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
-      body: const Center(child: Text('Edit Profile - Coming Soon')),
-    );
-  }
-}
-
-class _TrainingPrefsPlaceholder extends StatelessWidget {
-  const _TrainingPrefsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Training Preferences')),
-      body: const Center(child: Text('Training Preferences - Coming Soon')),
     );
   }
 }

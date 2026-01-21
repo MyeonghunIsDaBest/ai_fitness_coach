@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/providers.dart';
 import '../../../domain/models/daily_workout.dart';
+import '../../../domain/models/exercise.dart';
 import '../../../domain/models/logged_set.dart';
 import '../../widgets/design_system/atoms/atoms.dart';
 import '../../widgets/design_system/molecules/molecules.dart';
@@ -102,8 +103,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 
         final currentExercise = exercises[_currentExerciseIndex];
 
-        // Initialize current values if not set
-        _currentWeight ??= currentExercise.suggestedWeight ?? 0.0;
+        // Initialize current values if not set (no suggested weight in model, use 0)
+        _currentWeight ??= 0.0;
         _currentReps ??= currentExercise.reps;
 
         return Scaffold(
@@ -285,9 +286,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
             currentSet: _currentSetIndex + 1,
             totalSets: exercise.sets,
             targetReps: exercise.reps,
-            targetRPE: exercise.targetRPE,
+            targetRPE: exercise.targetRPEMid,
             weight: _currentWeight ?? 0,
-            formCues: exercise.cues,
+            formCues: exercise.formCues,
             onComplete: () => _showSetLoggingSheet(context, exercise),
             onSkip: () => _skipSet(exercise, allExercises),
           ),
@@ -332,7 +333,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
               setNumber: index + 1,
               weight: completedSet?.weight ?? _currentWeight ?? 0,
               reps: completedSet?.reps ?? exercise.reps,
-              targetRPE: exercise.targetRPE,
+              targetRPE: exercise.targetRPEMid,
               actualRPE: completedSet?.rpe,
               isCompleted: isCompleted,
               isActive: isActive,
@@ -374,7 +375,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 name: exercise.name,
                 sets: exercise.sets,
                 reps: exercise.reps,
-                targetRPE: exercise.targetRPE,
+                targetRPE: exercise.targetRPEMid,
               ),
             );
           },
@@ -434,9 +435,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       builder: (context) => SetLoggingSheet(
         exerciseName: exercise.name,
         setNumber: _currentSetIndex + 1,
-        targetWeight: _currentWeight ?? exercise.suggestedWeight ?? 0,
+        targetWeight: _currentWeight ?? 0,
         targetReps: _currentReps ?? exercise.reps,
-        targetRPE: exercise.targetRPE,
+        targetRPE: exercise.targetRPEMid,
         onComplete: (weight, reps, rpe) {
           _logSet(exercise, weight, reps, rpe);
         },
@@ -457,7 +458,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       weightUnit: 'kg',
       reps: reps,
       rpe: rpe,
-      targetRPE: exercise.targetRPE,
+      targetRPE: exercise.targetRPEMid,
     );
 
     // Add to logged sets
@@ -509,7 +510,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
         _isResting = false;
         // Reset current values for new exercise
         final nextExercise = exercises[_currentExerciseIndex];
-        _currentWeight = nextExercise.suggestedWeight;
+        _currentWeight = null; // Reset to let user enter weight
         _currentReps = nextExercise.reps;
         _currentRPE = null;
       });

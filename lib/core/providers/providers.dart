@@ -300,6 +300,14 @@ final completeWorkoutSessionProvider = Provider<Future<void> Function()>((ref) {
   };
 });
 
+/// Clear workout session data (for post-workout cleanup)
+final clearWorkoutSessionProvider = Provider<void Function()>((ref) {
+  return () {
+    ref.read(activeSessionIdProvider.notifier).state = null;
+    ref.read(loggedSetsProvider.notifier).state = [];
+  };
+});
+
 // ==========================================
 // HISTORY PROVIDERS
 // ==========================================
