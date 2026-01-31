@@ -10,6 +10,7 @@ import '../core/enums/lift_type.dart';
 import '../data/templates/powerlifting_templates.dart';
 import '../data/templates/crossfit_templates.dart';
 import '../data/templates/bodybuilding_templates.dart';
+import '../data/templates/general_fitness_templates.dart';
 
 /// Pre-built workout program templates
 class ProgramTemplates {
@@ -515,11 +516,30 @@ class ProgramTemplates {
   // HELPER METHOD
   // ============================================================================
 
-  /// Get all available templates
+  /// Get all available templates from all sports
   static List<WorkoutProgram> getAllTemplates() {
     return [
+      // Built-in templates from this file
       startingStrength,
       upperLowerSplit,
+
+      // Powerlifting templates
+      PowerliftingTemplates.beginnerLinearProgression,
+      PowerliftingTemplates.intermediateBlockPeriodization,
+      PowerliftingTemplates.advancedDUP,
+
+      // Bodybuilding templates
+      BodybuildingTemplates.classicBroSplit,
+      BodybuildingTemplates.pushPullLegs,
+
+      // CrossFit/HYROX templates
+      CrossFitTemplates.beginnerFundamentals,
+      CrossFitTemplates.intermediateCompPrep,
+      CrossFitTemplates.hyroxTraining,
+
+      // General Fitness templates
+      GeneralFitnessTemplates.beginnerFullBody,
+      GeneralFitnessTemplates.intermediateUpperLower,
     ];
   }
 }

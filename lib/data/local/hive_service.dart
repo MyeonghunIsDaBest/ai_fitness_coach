@@ -7,23 +7,81 @@ class HiveService {
   factory HiveService() => _instance;
   HiveService._internal();
 
-  late Box<Map<dynamic, dynamic>> _profileBox;
-  late Box<Map<dynamic, dynamic>> _programBox;
-  late Box<Map<dynamic, dynamic>> _sessionBox;
-  late Box<Map<dynamic, dynamic>> _workoutBox;
+  Box<Map<dynamic, dynamic>>? _profileBox;
+  Box<Map<dynamic, dynamic>>? _programBox;
+  Box<Map<dynamic, dynamic>>? _sessionBox;
+  Box<Map<dynamic, dynamic>>? _workoutBox;
+
+  bool _isInitialized = false;
+  bool _isInitializing = false;
 
   static const String profileBoxName = 'profiles';
   static const String programBoxName = 'programs';
   static const String sessionBoxName = 'sessions';
   static const String workoutBoxName = 'workouts';
 
-  Future<void> init() async {
-    await Hive.initFlutter();
+  /// Check if the service has been initialized
+  bool get isInitialized => _isInitialized;
 
-    _profileBox = await Hive.openBox<Map<dynamic, dynamic>>(profileBoxName);
-    _programBox = await Hive.openBox<Map<dynamic, dynamic>>(programBoxName);
-    _sessionBox = await Hive.openBox<Map<dynamic, dynamic>>(sessionBoxName);
-    _workoutBox = await Hive.openBox<Map<dynamic, dynamic>>(workoutBoxName);
+  /// Ensures the service is initialized before use
+  /// Throws [StateError] if accessed before initialization
+  void _ensureInitialized() {
+    if (!_isInitialized) {
+      throw StateError(
+        'HiveService has not been initialized. Call init() first.',
+      );
+    }
+  }
+
+  /// Initialize Hive and open all boxes
+  /// Safe to call multiple times - will only initialize once
+  Future<void> init() async {
+    if (_isInitialized) return;
+    if (_isInitializing) {
+      // Wait for ongoing initialization to complete
+      while (_isInitializing) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      return;
+    }
+
+    _isInitializing = true;
+    try {
+      await Hive.initFlutter();
+
+      _profileBox = await Hive.openBox<Map<dynamic, dynamic>>(profileBoxName);
+      _programBox = await Hive.openBox<Map<dynamic, dynamic>>(programBoxName);
+      _sessionBox = await Hive.openBox<Map<dynamic, dynamic>>(sessionBoxName);
+      _workoutBox = await Hive.openBox<Map<dynamic, dynamic>>(workoutBoxName);
+
+      _isInitialized = true;
+    } finally {
+      _isInitializing = false;
+    }
+  }
+
+  /// Get profile box with initialization guard
+  Box<Map<dynamic, dynamic>> get profileBox {
+    _ensureInitialized();
+    return _profileBox!;
+  }
+
+  /// Get program box with initialization guard
+  Box<Map<dynamic, dynamic>> get programBox {
+    _ensureInitialized();
+    return _programBox!;
+  }
+
+  /// Get session box with initialization guard
+  Box<Map<dynamic, dynamic>> get sessionBox {
+    _ensureInitialized();
+    return _sessionBox!;
+  }
+
+  /// Get workout box with initialization guard
+  Box<Map<dynamic, dynamic>> get workoutBox {
+    _ensureInitialized();
+    return _workoutBox!;
   }
 
   // ==========================================
@@ -32,7 +90,7 @@ class HiveService {
 
   Future<void> saveProfile(String id, Map<String, dynamic> data) async {
     try {
-      await _profileBox.put(id, data);
+      await profileBox.put(id, data);
     } catch (e) {
       throw Exception('Failed to save profile: $e');
     }
@@ -40,7 +98,7 @@ class HiveService {
 
   Map<String, dynamic>? getProfile(String id) {
     try {
-      final data = _profileBox.get(id);
+      final data = profileBox.get(id);
       return data != null ? Map<String, dynamic>.from(data) : null;
     } catch (e) {
       throw Exception('Failed to get profile: $e');
@@ -49,18 +107,18 @@ class HiveService {
 
   Future<void> deleteProfile(String id) async {
     try {
-      await _profileBox.delete(id);
+      await profileBox.delete(id);
     } catch (e) {
       throw Exception('Failed to delete profile: $e');
     }
   }
 
   Future<void> setCurrentProfile(String id) async {
-    await _profileBox.put('_current', {'id': id});
+    await profileBox.put('_current', {'id': id});
   }
 
   String? getCurrentProfileId() {
-    final data = _profileBox.get('_current');
+    final data = profileBox.get('_current');
     return data?['id'] as String?;
   }
 
@@ -70,7 +128,7 @@ class HiveService {
 
   Future<void> saveProgram(String id, Map<String, dynamic> data) async {
     try {
-      await _programBox.put(id, data);
+      await programBox.put(id, data);
     } catch (e) {
       throw Exception('Failed to save program: $e');
     }
@@ -78,7 +136,7 @@ class HiveService {
 
   Map<String, dynamic>? getProgram(String id) {
     try {
-      final data = _programBox.get(id);
+      final data = programBox.get(id);
       return data != null ? Map<String, dynamic>.from(data) : null;
     } catch (e) {
       throw Exception('Failed to get program: $e');
@@ -87,7 +145,7 @@ class HiveService {
 
   List<Map<String, dynamic>> getAllPrograms() {
     try {
-      return _programBox.values
+      return programBox.values
           .where((v) => v['id'] != null)
           .map((v) => Map<String, dynamic>.from(v))
           .toList();
@@ -98,19 +156,19 @@ class HiveService {
 
   Future<void> deleteProgram(String id) async {
     try {
-      await _programBox.delete(id);
+      await programBox.delete(id);
     } catch (e) {
       throw Exception('Failed to delete program: $e');
     }
   }
 
   Future<void> setActiveProgram(String id) async {
-    await _programBox.put(
+    await programBox.put(
         '_active', {'id': id, 'startDate': DateTime.now().toIso8601String()});
   }
 
   String? getActiveProgramId() {
-    final data = _programBox.get('_active');
+    final data = programBox.get('_active');
     return data?['id'] as String?;
   }
 
@@ -120,7 +178,7 @@ class HiveService {
 
   Future<void> saveSession(String id, Map<String, dynamic> data) async {
     try {
-      await _sessionBox.put(id, data);
+      await sessionBox.put(id, data);
     } catch (e) {
       throw Exception('Failed to save session: $e');
     }
@@ -128,7 +186,7 @@ class HiveService {
 
   Map<String, dynamic>? getSession(String id) {
     try {
-      final data = _sessionBox.get(id);
+      final data = sessionBox.get(id);
       return data != null ? Map<String, dynamic>.from(data) : null;
     } catch (e) {
       throw Exception('Failed to get session: $e');
@@ -137,7 +195,7 @@ class HiveService {
 
   List<Map<String, dynamic>> getAllSessions() {
     try {
-      return _sessionBox.values
+      return sessionBox.values
           .where((v) => v['id'] != null)
           .map((v) => Map<String, dynamic>.from(v))
           .toList();
@@ -148,7 +206,7 @@ class HiveService {
 
   List<Map<String, dynamic>> getSessionsByProgram(String programId) {
     try {
-      return _sessionBox.values
+      return sessionBox.values
           .where((v) => v['programId'] == programId)
           .map((v) => Map<String, dynamic>.from(v))
           .toList();
@@ -159,7 +217,7 @@ class HiveService {
 
   Future<void> deleteSession(String id) async {
     try {
-      await _sessionBox.delete(id);
+      await sessionBox.delete(id);
     } catch (e) {
       throw Exception('Failed to delete session: $e');
     }
@@ -171,7 +229,7 @@ class HiveService {
 
   Future<void> saveWorkout(String id, Map<String, dynamic> data) async {
     try {
-      await _workoutBox.put(id, data);
+      await workoutBox.put(id, data);
     } catch (e) {
       throw Exception('Failed to save workout: $e');
     }
@@ -179,7 +237,7 @@ class HiveService {
 
   Map<String, dynamic>? getWorkout(String id) {
     try {
-      final data = _workoutBox.get(id);
+      final data = workoutBox.get(id);
       return data != null ? Map<String, dynamic>.from(data) : null;
     } catch (e) {
       throw Exception('Failed to get workout: $e');
@@ -188,7 +246,7 @@ class HiveService {
 
   List<Map<String, dynamic>> getAllWorkouts() {
     try {
-      return _workoutBox.values
+      return workoutBox.values
           .where((v) => v['id'] != null)
           .map((v) => Map<String, dynamic>.from(v))
           .toList();
@@ -203,7 +261,7 @@ class HiveService {
 
   Future<void> markWeekCompleted(String programId, int weekNumber) async {
     final key = '${programId}_week_$weekNumber';
-    await _programBox.put(key, {
+    await programBox.put(key, {
       'completed': true,
       'completedAt': DateTime.now().toIso8601String(),
     });
@@ -211,15 +269,15 @@ class HiveService {
 
   bool isWeekCompleted(String programId, int weekNumber) {
     final key = '${programId}_week_$weekNumber';
-    final data = _programBox.get(key);
+    final data = programBox.get(key);
     return data?['completed'] == true;
   }
 
   List<int> getCompletedWeeks(String programId) {
     final completed = <int>[];
-    for (var key in _programBox.keys) {
+    for (var key in programBox.keys) {
       if (key.toString().startsWith('${programId}_week_')) {
-        final data = _programBox.get(key);
+        final data = programBox.get(key);
         if (data?['completed'] == true) {
           final weekStr = key.toString().split('_').last;
           completed.add(int.parse(weekStr));
@@ -234,12 +292,12 @@ class HiveService {
   // ==========================================
 
   int getTotalWorkouts() {
-    return _sessionBox.values.where((v) => v['isCompleted'] == true).length;
+    return sessionBox.values.where((v) => v['isCompleted'] == true).length;
   }
 
   double getTotalVolume() {
     double total = 0.0;
-    for (var session in _sessionBox.values) {
+    for (var session in sessionBox.values) {
       final sets = session['sets'] as List?;
       if (sets != null) {
         for (var set in sets) {
@@ -257,7 +315,7 @@ class HiveService {
   Map<String, double> getPersonalRecords() {
     final prs = <String, double>{};
 
-    for (var session in _sessionBox.values) {
+    for (var session in sessionBox.values) {
       final sets = session['sets'] as List?;
       if (sets != null) {
         for (var set in sets) {
@@ -286,33 +344,39 @@ class HiveService {
   // ==========================================
 
   Future<void> clearAll() async {
-    await _profileBox.clear();
-    await _programBox.clear();
-    await _sessionBox.clear();
-    await _workoutBox.clear();
+    _ensureInitialized();
+    await _profileBox!.clear();
+    await _programBox!.clear();
+    await _sessionBox!.clear();
+    await _workoutBox!.clear();
   }
 
   Future<void> clearPrograms() async {
-    await _programBox.clear();
+    _ensureInitialized();
+    await _programBox!.clear();
   }
 
   Future<void> clearSessions() async {
-    await _sessionBox.clear();
+    _ensureInitialized();
+    await _sessionBox!.clear();
   }
 
   Future<void> close() async {
-    await _profileBox.close();
-    await _programBox.close();
-    await _sessionBox.close();
-    await _workoutBox.close();
+    if (!_isInitialized) return;
+    await _profileBox?.close();
+    await _programBox?.close();
+    await _sessionBox?.close();
+    await _workoutBox?.close();
+    _isInitialized = false;
   }
 
   Map<String, int> getBoxSizes() {
+    _ensureInitialized();
     return {
-      'profiles': _profileBox.length,
-      'programs': _programBox.length,
-      'sessions': _sessionBox.length,
-      'workouts': _workoutBox.length,
+      'profiles': _profileBox!.length,
+      'programs': _programBox!.length,
+      'sessions': _sessionBox!.length,
+      'workouts': _workoutBox!.length,
     };
   }
 }

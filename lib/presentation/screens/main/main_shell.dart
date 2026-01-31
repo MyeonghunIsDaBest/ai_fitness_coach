@@ -6,17 +6,33 @@ import '../programs/programs_screen.dart';
 import '../progress/progress_screen.dart';
 import '../profile/profile_screen.dart';
 
+// Semi-dark theme colors
+const _backgroundColor = Color(0xFF0F172A);
+const _navBarColor = Color(0xFF1E293B);
+const _navBarBorder = Color(0xFF334155);
+const _accentGreen = Color(0xFFB4F04D);
+const _accentBlue = Color(0xFF3B82F6);
+const _accentCyan = Color(0xFF00D9FF);
+
 /// MainShell - Main app shell with bottom navigation
 /// Matches the legacy design with 4 main tabs and center FAB
 class MainShell extends ConsumerStatefulWidget {
-  const MainShell({super.key});
+  final int initialTab;
+
+  const MainShell({super.key, this.initialTab = 0});
 
   @override
   ConsumerState<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends ConsumerState<MainShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTab;
+  }
 
   // Keep all tabs in memory for better performance (IndexedStack pattern)
   final List<Widget> _tabs = const [
@@ -29,7 +45,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: _backgroundColor,
       body: IndexedStack(
         index: _currentIndex,
         children: _tabs,
@@ -43,7 +59,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   Widget _buildFAB() {
     return FloatingActionButton(
       onPressed: () => _showWorkoutOptions(context),
-      backgroundColor: const Color(0xFFB4F04D),
+      backgroundColor: _accentGreen,
       foregroundColor: Colors.black,
       elevation: 4,
       child: const Icon(Icons.add, size: 28),
@@ -53,10 +69,10 @@ class _MainShellState extends ConsumerState<MainShell> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: _navBarColor,
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade800,
+            color: _navBarBorder,
             width: 1,
           ),
         ),
@@ -114,7 +130,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     required int index,
   }) {
     final isActive = _currentIndex == index;
-    final color = isActive ? const Color(0xFFB4F04D) : Colors.grey;
+    final color = isActive ? _accentGreen : const Color(0xFF94A3B8);
 
     return Expanded(
       child: Material(
@@ -159,7 +175,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: const BoxDecoration(
-          color: Color(0xFF1E1E1E),
+          color: _navBarColor,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(20),
           ),
@@ -174,7 +190,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade700,
+                  color: _navBarBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -197,7 +213,7 @@ class _MainShellState extends ConsumerState<MainShell> {
             _buildWorkoutOption(
               context: context,
               icon: Icons.play_circle_outline,
-              iconColor: const Color(0xFF3b82f6),
+              iconColor: _accentBlue,
               title: "Start Today's Workout",
               subtitle: 'Continue your program',
               onTap: () {
@@ -206,12 +222,12 @@ class _MainShellState extends ConsumerState<MainShell> {
               },
             ),
 
-            Divider(color: Colors.grey.shade800, height: 1),
+            const Divider(color: _navBarBorder, height: 1),
 
             _buildWorkoutOption(
               context: context,
               icon: Icons.add,
-              iconColor: const Color(0xFFB4F04D),
+              iconColor: _accentGreen,
               title: 'Quick Workout',
               subtitle: 'Start an empty workout',
               onTap: () {
@@ -223,12 +239,24 @@ class _MainShellState extends ConsumerState<MainShell> {
             _buildWorkoutOption(
               context: context,
               icon: Icons.history,
-              iconColor: const Color(0xFF00D9FF),
+              iconColor: _accentCyan,
               title: 'Repeat Workout',
               subtitle: 'Redo a previous workout',
               onTap: () {
                 Navigator.pop(context);
                 context.push('/history');
+              },
+            ),
+
+            _buildWorkoutOption(
+              context: context,
+              icon: Icons.calendar_view_week,
+              iconColor: const Color(0xFF8B5CF6),
+              title: 'Week Dashboard',
+              subtitle: 'View your weekly schedule',
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/week-dashboard');
               },
             ),
 
@@ -265,9 +293,9 @@ class _MainShellState extends ConsumerState<MainShell> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: Colors.grey.shade400),
+        style: const TextStyle(color: Color(0xFF94A3B8)),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey.shade600),
+      trailing: const Icon(Icons.chevron_right, color: Color(0xFF64748B)),
       onTap: onTap,
     );
   }

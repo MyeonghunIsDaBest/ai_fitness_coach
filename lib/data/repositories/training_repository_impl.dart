@@ -261,25 +261,38 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Future<void> setActiveProgram(String programId) async {
     try {
-      // Deactivate all programs first
+      // Load the program to activate first (fail fast if it doesn't exist)
+      final program = await loadProgram(programId);
+      if (program == null) {
+        throw const ProgramNotFoundFailure();
+      }
+
+      // Get all programs and prepare the updates
       final allPrograms = await getAllPrograms();
-      for (var program in allPrograms) {
-        if (program.isActive) {
-          final deactivated = program.copyWith(isActive: false);
-          await saveProgram(deactivated);
+
+      // Prepare all updates before making any changes (atomic-like behavior)
+      final updates = <Future<void>>[];
+
+      // First, activate the new program (most important operation)
+      // This ensures we always have an active program even if deactivation fails
+      final activated = program.copyWith(
+        isActive: true,
+        startDate: program.startDate,
+      );
+      updates.add(saveProgram(activated));
+
+      // Then, deactivate all other programs
+      for (var p in allPrograms) {
+        if (p.id != programId && p.isActive) {
+          final deactivated = p.copyWith(isActive: false);
+          updates.add(saveProgram(deactivated));
         }
       }
 
-      // Activate the selected program
-      final program = await loadProgram(programId);
-      if (program != null) {
-        final activated = program.copyWith(
-          isActive: true,
-          startDate: DateTime.now(),
-        );
-        await saveProgram(activated);
-      }
+      // Execute all updates
+      await Future.wait(updates);
     } catch (e) {
+      if (e is ProgramNotFoundFailure) rethrow;
       throw StorageFailure('Failed to set active program: $e');
     }
   }
@@ -367,7 +380,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   ) async {
     try {
       final program = await loadProgram(programId);
-      if (program == null) throw ProgramNotFoundFailure();
+      if (program == null) throw const ProgramNotFoundFailure();
 
       final updatedProgram = program.updateWeek(weekNumber, updatedWeek);
       await saveProgram(updatedProgram);
@@ -429,7 +442,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   ) async {
     try {
       final profile = await loadProfile(profileId);
-      if (profile == null) throw UserNotFoundFailure();
+      if (profile == null) throw const UserNotFoundFailure();
 
       // This would require LiftType mapping
       // For now, just update the profile

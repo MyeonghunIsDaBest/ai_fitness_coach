@@ -328,7 +328,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () => context.go('/programs'),
             style: ElevatedButton.styleFrom(
               backgroundColor: _accentGreen,
               foregroundColor: Colors.black,
@@ -566,22 +566,22 @@ class HomeScreen extends ConsumerWidget {
             childAspectRatio: 1.6,
             children: [
               _buildQuickActionButton(
-                Icons.trending_up,
-                'Progression',
+                Icons.analytics_outlined,
+                'Analytics',
                 _accentBlue,
-                () {},
+                () => context.push('/analytics'),
               ),
               _buildQuickActionButton(
-                Icons.local_fire_department_rounded,
-                'AI Coach',
+                Icons.add_box_outlined,
+                'Create Program',
                 const Color(0xFFEF4444),
-                () {},
+                () => context.push('/program-editor'),
               ),
               _buildQuickActionButton(
-                Icons.videocam_rounded,
-                'Form Check',
+                Icons.calendar_view_week,
+                'Week View',
                 const Color(0xFF10B981),
-                () {},
+                () => context.push('/week-dashboard'),
               ),
               _buildQuickActionButton(
                 Icons.play_circle_filled,

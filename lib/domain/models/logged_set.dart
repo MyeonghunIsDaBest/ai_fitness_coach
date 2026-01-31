@@ -18,7 +18,7 @@ class LoggedSet extends Equatable {
   final String? notes;
   final double? targetRPE;
 
-  const LoggedSet({
+  LoggedSet({
     required this.id,
     required this.workoutSessionId,
     required this.exerciseId,
@@ -32,9 +32,14 @@ class LoggedSet extends Equatable {
     required this.timestamp,
     this.notes,
     this.targetRPE,
-  });
+  })  : assert(rpe >= 1.0 && rpe <= 10.0, 'RPE must be between 1.0 and 10.0, got: $rpe'),
+        assert(weight >= 0, 'Weight must be non-negative, got: $weight'),
+        assert(reps >= 0, 'Reps must be non-negative, got: $reps'),
+        assert(setNumber > 0, 'Set number must be positive, got: $setNumber'),
+        assert(weightUnit == 'kg' || weightUnit == 'lbs', 'Weight unit must be kg or lbs, got: $weightUnit');
 
-  /// Factory constructor for creating a new logged set
+  /// Factory constructor for creating a new logged set with validation
+  /// Throws [ArgumentError] if values are outside valid ranges
   factory LoggedSet.create({
     required String workoutSessionId,
     required String exerciseId,
@@ -47,6 +52,26 @@ class LoggedSet extends Equatable {
     double? targetRPE,
     String? notes,
   }) {
+    // Validate inputs before creating
+    if (rpe < 1.0 || rpe > 10.0) {
+      throw ArgumentError('RPE must be between 1.0 and 10.0, got: $rpe');
+    }
+    if (weight < 0) {
+      throw ArgumentError('Weight must be non-negative, got: $weight');
+    }
+    if (reps < 0) {
+      throw ArgumentError('Reps must be non-negative, got: $reps');
+    }
+    if (setNumber < 1) {
+      throw ArgumentError('Set number must be positive, got: $setNumber');
+    }
+    if (weightUnit != 'kg' && weightUnit != 'lbs') {
+      throw ArgumentError('Weight unit must be kg or lbs, got: $weightUnit');
+    }
+    if (targetRPE != null && (targetRPE < 1.0 || targetRPE > 10.0)) {
+      throw ArgumentError('Target RPE must be between 1.0 and 10.0, got: $targetRPE');
+    }
+
     return LoggedSet(
       id: _generateId(),
       workoutSessionId: workoutSessionId,
@@ -233,23 +258,47 @@ class LoggedSet extends Equatable {
     };
   }
 
-  /// Create from JSON
+  /// Create from JSON with validation and safe defaults
   factory LoggedSet.fromJson(Map<String, dynamic> json) {
+    // Validate and clamp RPE to valid range
+    final rawRpe = (json['rpe'] as num?)?.toDouble() ?? 5.0;
+    final validRpe = rawRpe.clamp(1.0, 10.0);
+
+    // Validate weight is non-negative
+    final rawWeight = (json['weight'] as num?)?.toDouble() ?? 0.0;
+    final validWeight = rawWeight < 0 ? 0.0 : rawWeight;
+
+    // Validate reps is non-negative
+    final rawReps = (json['reps'] as int?) ?? 0;
+    final validReps = rawReps < 0 ? 0 : rawReps;
+
+    // Validate set number is positive
+    final rawSetNumber = (json['setNumber'] as int?) ?? 1;
+    final validSetNumber = rawSetNumber < 1 ? 1 : rawSetNumber;
+
+    // Validate weight unit
+    final rawWeightUnit = json['weightUnit'] as String? ?? 'lbs';
+    final validWeightUnit = (rawWeightUnit == 'kg' || rawWeightUnit == 'lbs')
+        ? rawWeightUnit
+        : 'lbs';
+
     return LoggedSet(
-      id: json['id'] as String,
-      workoutSessionId: json['workoutSessionId'] as String,
-      exerciseId: json['exerciseId'] as String,
-      exerciseName: json['exerciseName'] as String,
-      setNumber: json['setNumber'] as int,
-      weight: (json['weight'] as num).toDouble(),
-      weightUnit: json['weightUnit'] as String,
-      reps: json['reps'] as int,
-      rpe: (json['rpe'] as num).toDouble(),
-      completed: json['completed'] as bool,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      id: json['id'] as String? ?? _generateId(),
+      workoutSessionId: json['workoutSessionId'] as String? ?? '',
+      exerciseId: json['exerciseId'] as String? ?? '',
+      exerciseName: json['exerciseName'] as String? ?? 'Unknown Exercise',
+      setNumber: validSetNumber,
+      weight: validWeight,
+      weightUnit: validWeightUnit,
+      reps: validReps,
+      rpe: validRpe,
+      completed: json['completed'] as bool? ?? false,
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
       notes: json['notes'] as String?,
       targetRPE: json['targetRPE'] != null
-          ? (json['targetRPE'] as num).toDouble()
+          ? (json['targetRPE'] as num).toDouble().clamp(1.0, 10.0)
           : null,
     );
   }

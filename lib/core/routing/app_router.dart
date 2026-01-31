@@ -7,6 +7,13 @@ import '../../presentation/screens/workout/workout_summary_screen.dart';
 import '../../presentation/screens/programs/program_detail_screen.dart';
 import '../../presentation/screens/history/workout_history_screen.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
+// New screens
+import '../../presentation/screens/auth/login_screen.dart';
+import '../../presentation/screens/auth/signup_screen.dart';
+import '../../presentation/screens/auth/forgot_password_screen.dart';
+import '../../presentation/screens/program_editor/custom_program_screen.dart';
+import '../../presentation/screens/dashboard/week_dashboard_screen.dart';
+import '../../presentation/screens/analytics/analytics_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -70,6 +77,53 @@ GoRouter router(RouterRef ref) {
         path: '/settings',
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+
+      // Auth screens
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/signup',
+        name: 'signup',
+        builder: (context, state) => const SignupScreen(),
+      ),
+
+      // Program editor
+      GoRoute(
+        path: '/program-editor',
+        name: 'program-editor',
+        builder: (context, state) => const CustomProgramScreen(),
+      ),
+
+      // Week dashboard
+      GoRoute(
+        path: '/week-dashboard',
+        name: 'week-dashboard',
+        builder: (context, state) => const WeekDashboardScreen(),
+      ),
+
+      // Analytics
+      GoRoute(
+        path: '/analytics',
+        name: 'analytics',
+        builder: (context, state) => const AnalyticsScreen(),
+      ),
+
+      // Programs list (navigates to MainShell with programs tab selected)
+      GoRoute(
+        path: '/programs',
+        name: 'programs',
+        builder: (context, state) => const MainShell(initialTab: 1),
+      ),
+
+      // Forgot password screen
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
     ],
 
