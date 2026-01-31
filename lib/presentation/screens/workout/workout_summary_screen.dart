@@ -6,6 +6,12 @@ import '../../../core/theme/color_schemes.dart';
 import '../../../domain/models/logged_set.dart';
 import '../../widgets/design_system/atoms/atoms.dart';
 
+// Semi-dark theme colors
+const _backgroundColor = Color(0xFF0F172A);
+const _cardColor = Color(0xFF1E293B);
+const _cardBorder = Color(0xFF334155);
+const _accentGreen = Color(0xFFB4F04D);
+
 /// WorkoutSummaryScreen - Post-workout summary and stats
 class WorkoutSummaryScreen extends ConsumerWidget {
   const WorkoutSummaryScreen({super.key});
@@ -22,7 +28,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
     final stats = _calculateStats(loggedSets);
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: _backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -35,13 +41,13 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: colorScheme.success.withOpacity(0.1),
+                  color: _accentGreen.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.check_circle,
                   size: 48,
-                  color: colorScheme.success,
+                  color: _accentGreen,
                 ),
               ),
               const SizedBox(height: 24),
@@ -150,8 +156,9 @@ class WorkoutSummaryScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _cardBorder, width: 1),
       ),
       child: Column(
         children: [
@@ -254,8 +261,9 @@ class WorkoutSummaryScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainer,
+              color: _cardColor,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _cardBorder, width: 1),
             ),
             child: Row(
               children: [
@@ -303,8 +311,9 @@ class WorkoutSummaryScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _cardBorder, width: 1),
       ),
       child: Row(
         children: [

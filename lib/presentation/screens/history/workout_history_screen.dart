@@ -9,6 +9,10 @@ import '../../../domain/models/workout_session.dart';
 class WorkoutHistoryScreen extends ConsumerWidget {
   const WorkoutHistoryScreen({super.key});
 
+  // Semi-dark theme colors
+  static const _backgroundColor = Color(0xFF0F172A);
+  static const _textPrimary = Color(0xFFE2E8F0);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -17,17 +21,19 @@ class WorkoutHistoryScreen extends ConsumerWidget {
     final historyAsync = ref.watch(workoutHistoryProvider(50));
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: _backgroundColor,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Workout History',
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
+            color: _textPrimary,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: _textPrimary),
           onPressed: () => context.pop(),
         ),
       ),
@@ -188,8 +194,12 @@ class _WorkoutHistoryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF334155),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -232,13 +242,13 @@ class _WorkoutHistoryCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: colorScheme.primary.withOpacity(0.1),
+                          color: const Color(0xFF3B82F6).withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.check_circle,
                           size: 20,
-                          color: colorScheme.primary,
+                          color: Color(0xFF3B82F6),
                         ),
                       ),
                   ],
@@ -381,9 +391,9 @@ class _SessionDetailSheet extends StatelessWidget {
     }
 
     return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E293B),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [

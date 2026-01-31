@@ -6,6 +6,12 @@ import '../../../domain/models/workout_program.dart';
 import '../../widgets/design_system/atoms/atoms.dart';
 import '../../widgets/design_system/organisms/organisms.dart';
 
+// Semi-dark theme colors
+const _backgroundColor = Color(0xFF0F172A);
+const _cardColor = Color(0xFF1E293B);
+const _cardBorder = Color(0xFF334155);
+const _accentBlue = Color(0xFF3B82F6);
+
 /// ProgramDetailScreen - Shows full program details and week overview
 class ProgramDetailScreen extends ConsumerWidget {
   final String programId;
@@ -33,34 +39,34 @@ class ProgramDetailScreen extends ConsumerWidget {
         final isActive = activeProgram.valueOrNull?.id == program.id;
 
         return Scaffold(
-          backgroundColor: colorScheme.surface,
+          backgroundColor: _backgroundColor,
           body: CustomScrollView(
             slivers: [
               // Collapsing app bar with program info
               SliverAppBar(
                 expandedHeight: 200,
                 pinned: true,
-                backgroundColor: colorScheme.primary,
+                backgroundColor: _accentBlue,
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: colorScheme.onPrimary),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => context.pop(),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(
                     program.name,
                     style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onPrimary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   background: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          colorScheme.primary,
-                          colorScheme.primary.withOpacity(0.8),
+                          Color(0xFF3B82F6),
+                          Color(0xFF8B5CF6),
                         ],
                       ),
                     ),
@@ -152,10 +158,10 @@ class ProgramDetailScreen extends ConsumerWidget {
           ),
           bottomNavigationBar: Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
+            decoration: const BoxDecoration(
+              color: _backgroundColor,
               border: Border(
-                top: BorderSide(color: colorScheme.outlineVariant),
+                top: BorderSide(color: _cardBorder),
               ),
             ),
             child: SafeArea(
@@ -176,13 +182,19 @@ class ProgramDetailScreen extends ConsumerWidget {
         );
       },
       loading: () => Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(title: const Text('Program')),
-        body: const Center(child: CircularProgressIndicator()),
+        backgroundColor: _backgroundColor,
+        appBar: AppBar(
+          backgroundColor: _backgroundColor,
+          title: const Text('Program', style: TextStyle(color: Colors.white)),
+        ),
+        body: const Center(child: CircularProgressIndicator(color: _accentBlue)),
       ),
       error: (error, _) => Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(title: const Text('Program')),
+        backgroundColor: _backgroundColor,
+        appBar: AppBar(
+          backgroundColor: _backgroundColor,
+          title: const Text('Program', style: TextStyle(color: Colors.white)),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -216,8 +228,9 @@ class ProgramDetailScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _cardBorder, width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -269,8 +282,9 @@ class ProgramDetailScreen extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainer,
+          color: _cardColor,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _cardBorder, width: 1),
         ),
         child: Text(
           'No schedule available',
@@ -314,8 +328,9 @@ class ProgramDetailScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _cardBorder, width: 1),
       ),
       child: Column(
         children: [

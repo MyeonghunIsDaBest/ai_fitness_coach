@@ -1,0 +1,2271 @@
+import 'package:flutter/material.dart';
+import '../models/enums.dart';
+import '../models/exercise.dart';
+import '../models/daily_workout.dart';
+import '../models/program_week.dart';
+import '../models/workout_program.dart';
+import '../data/program_templates.dart';
+import '../services/workout_service.dart';
+
+// ============================================
+// PROGRAM SELECTION SCREEN - Enhanced
+// ============================================
+class ProgramSelectionScreen extends StatefulWidget {
+  @override
+  _ProgramSelectionScreenState createState() => _ProgramSelectionScreenState();
+}
+
+class _ProgramSelectionScreenState extends State<ProgramSelectionScreen>
+    with SingleTickerProviderStateMixin {
+  WorkoutProgram? selectedProgram;
+  final programService = ProgramService();
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final allPrograms = programService.getAllPrograms();
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF1E1E1E),
+        title: Text('Choose Your Program'),
+        actions: [
+          if (programService.testMode)
+            Container(
+              margin: EdgeInsets.only(right: 16),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.science, size: 14, color: Colors.black),
+                  SizedBox(width: 4),
+                  Text(
+                    'TEST MODE',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FadeTransition(
+                      opacity: _animationController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Select Your Training Block',
+                              style: Theme.of(context).textTheme.headlineMedium),
+                          SizedBox(height: 8),
+                          Text(
+                              'Each program is 12 weeks of progressive training',
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6))),
+                          SizedBox(height: 8),
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFB4F04D).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Color(0xFFB4F04D).withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.lightbulb_outline,
+                                    color: Color(0xFFB4F04D), size: 20),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Programs auto-adjust based on your RPE feedback',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.7)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    ...allPrograms.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final program = entry.value;
+                      final isSelected = selectedProgram?.id == program.id;
+                      final color = _getSportColor(program.sport);
+
+                      return AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        margin: EdgeInsets.only(bottom: 16),
+                        child: TweenAnimationBuilder(
+                          duration: Duration(milliseconds: 400),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          builder: (context, double value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, 30 * (1 - value)),
+                              child: Opacity(
+                                opacity: value,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() => selectedProgram = program);
+                              _animationController.forward(from: 0.8);
+                            },
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 200),
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: [
+                                          color.withOpacity(0.3),
+                                          color.withOpacity(0.15)
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color:
+                                    isSelected ? null : Color(0xFF1E1E1E),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? color
+                                      : Colors.white.withOpacity(0.1),
+                                  width: isSelected ? 2 : 1,
+                                ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: color.withOpacity(0.3),
+                                          blurRadius: 12,
+                                          offset: Offset(0, 4),
+                                        )
+                                      ]
+                                    : null,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        padding: EdgeInsets.all(
+                                            isSelected ? 12 : 10),
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          boxShadow: isSelected
+                                              ? [
+                                                  BoxShadow(
+                                                    color:
+                                                        color.withOpacity(0.5),
+                                                    blurRadius: 8,
+                                                    offset: Offset(0, 2),
+                                                  )
+                                                ]
+                                              : null,
+                                        ),
+                                        child: Icon(Icons.fitness_center,
+                                            color: Colors.white,
+                                            size: isSelected ? 28 : 24),
+                                      ),
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(program.name,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            SizedBox(height: 4),
+                                            Text(program.sport.displayName,
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: color.withOpacity(
+                                                        0.8))),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: color.withOpacity(0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color: color.withOpacity(0.5)),
+                                        ),
+                                        child: Text(
+                                            '${program.totalWeeks} weeks',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: color)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(program.description,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          height: 1.4,
+                                          color:
+                                              Colors.white.withOpacity(0.7))),
+                                  if (isSelected) ...[
+                                    SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        _buildProgramFeature(
+                                            Icons.calendar_today,
+                                            '12 weeks',
+                                            color),
+                                        SizedBox(width: 16),
+                                        _buildProgramFeature(
+                                            Icons.trending_up,
+                                            'Progressive',
+                                            color),
+                                        SizedBox(width: 16),
+                                        _buildProgramFeature(
+                                            Icons.psychology,
+                                            'AI-Adjusted',
+                                            color),
+                                      ],
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Color(0xFF1E1E1E),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, -2))
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (selectedProgram != null)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle,
+                              color: Color(0xFFB4F04D), size: 16),
+                          SizedBox(width: 8),
+                          Text(
+                            'Selected: ${selectedProgram!.name}',
+                            style: TextStyle(
+                                color: Color(0xFFB4F04D),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: selectedProgram != null
+                          ? () {
+                              Navigator.pushNamed(
+                                context,
+                                '/week-dashboard',
+                                arguments: selectedProgram,
+                              );
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFB4F04D),
+                        foregroundColor: Colors.black,
+                        disabledBackgroundColor: Colors.white.withOpacity(0.1),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text('Start Program',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgramFeature(IconData icon, String text, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: color),
+        SizedBox(width: 4),
+        Text(text,
+            style: TextStyle(
+                fontSize: 11,
+                color: Colors.white.withOpacity(0.7),
+                fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+
+  Color _getSportColor(Sport sport) {
+    switch (sport) {
+      case Sport.powerlifting:
+        return Color(0xFFFF6B6B);
+      case Sport.crossfit:
+        return Color(0xFF95E1D3);
+      case Sport.bodybuilding:
+        return Color(0xFF4ECDC4);
+      case Sport.olympicWeightlifting:
+        return Color(0xFFFFE66D);
+    }
+  }
+}
+
+// ============================================
+// WEEK DASHBOARD SCREEN - Enhanced
+// ============================================
+class WeekDashboardScreen extends StatefulWidget {
+  @override
+  _WeekDashboardScreenState createState() => _WeekDashboardScreenState();
+}
+
+class _WeekDashboardScreenState extends State<WeekDashboardScreen>
+    with SingleTickerProviderStateMixin {
+  int currentWeek = 1;
+  final programService = ProgramService();
+  late AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final program =
+        ModalRoute.of(context)!.settings.arguments as WorkoutProgram;
+    final weekData = program.getWeek(currentWeek)!;
+
+    // Mock calculations - replace with real data
+    double avgRPE = (weekData.targetRPEMin + weekData.targetRPEMax) / 2;
+    bool isOnTrack = true;
+    int completedWorkouts = 2;
+    int totalWorkouts = weekData.dailyWorkouts
+        .where((d) => !d.isRestDay)
+        .length;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF1E1E1E),
+        title: Text(program.name),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () => _showProgramInfo(context, program),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Week Progress Header
+            AnimatedContainer(
+              duration: Duration(milliseconds: 500),
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFB4F04D).withOpacity(0.3),
+                    Color(0xFFB4F04D).withOpacity(0.1)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFFB4F04D).withOpacity(0.5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFFB4F04D).withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Week $currentWeek',
+                              style: TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.bold)),
+                          Text('of ${program.totalWeeks} total',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.6))),
+                        ],
+                      ),
+                      AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isOnTrack
+                              ? Colors.green
+                              : Colors.orange,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (isOnTrack
+                                      ? Colors.green
+                                      : Colors.orange)
+                                  .withOpacity(0.4),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            )
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                                isOnTrack
+                                    ? Icons.check_circle
+                                    : Icons.warning_amber,
+                                color: Colors.white,
+                                size: 16),
+                            SizedBox(width: 6),
+                            Text(isOnTrack ? 'On Track' : 'Off Track',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFB4F04D).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.analytics,
+                                  color: Color(0xFFB4F04D), size: 20),
+                            ),
+                            SizedBox(width: 12),
+                            Text(weekData.phase.displayName,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        Text(weekData.intensityRange,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.7))),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildEnhancedStatCard(
+                          label: 'Target RPE',
+                          value:
+                              '${weekData.targetRPEMin}-${weekData.targetRPEMax}',
+                          icon: Icons.flag,
+                          color: Color(0xFF4ECDC4),
+                          subtitle: 'Goal range',
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _buildEnhancedStatCard(
+                          label: 'Your Avg',
+                          value: avgRPE.toStringAsFixed(1),
+                          icon: Icons.trending_up,
+                          color: isOnTrack ? Colors.green : Colors.orange,
+                          subtitle: isOnTrack ? 'Perfect!' : 'Adjust',
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  // Progress bar
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Week Progress',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withOpacity(0.7))),
+                          Text(
+                              '$completedWorkouts/$totalWorkouts workouts',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFB4F04D))),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: completedWorkouts / totalWorkouts,
+                          minHeight: 10,
+                          backgroundColor: Colors.white.withOpacity(0.1),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xFFB4F04D)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 32),
+
+            // Week Selector with fatigue awareness
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Select Week',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                if (programService.testMode)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange),
+                    ),
+                    child: Text('All Unlocked',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold)),
+                  ),
+              ],
+            ),
+            SizedBox(height: 16),
+
+            GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1,
+              ),
+              itemCount: program.totalWeeks,
+              itemBuilder: (context, index) {
+                final week = index + 1;
+                final isUnlocked =
+                    programService.testMode || week <= currentWeek;
+                final isCurrent = week == currentWeek;
+                final isPast = week < currentWeek;
+
+                return GestureDetector(
+                  onTap: isUnlocked
+                      ? () => setState(() => currentWeek = week)
+                      : null,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      gradient: isCurrent
+                          ? LinearGradient(
+                              colors: [
+                                Color(0xFFB4F04D),
+                                Color(0xFFB4F04D).withOpacity(0.8)
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      color: isCurrent
+                          ? null
+                          : isPast
+                              ? Colors.green.withOpacity(0.2)
+                              : isUnlocked
+                                  ? Color(0xFF1E1E1E)
+                                  : Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isCurrent
+                            ? Color(0xFFB4F04D)
+                            : isPast
+                                ? Colors.green.withOpacity(0.5)
+                                : isUnlocked
+                                    ? Colors.white.withOpacity(0.2)
+                                    : Colors.white.withOpacity(0.05),
+                        width: isCurrent ? 2 : 1,
+                      ),
+                      boxShadow: isCurrent
+                          ? [
+                              BoxShadow(
+                                color: Color(0xFFB4F04D).withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              )
+                            ]
+                          : null,
+                    ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Text(
+                            '$week',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: isCurrent
+                                  ? Colors.black
+                                  : isPast
+                                      ? Colors.green
+                                      : isUnlocked
+                                          ? Colors.white
+                                          : Colors.white.withOpacity(0.2),
+                            ),
+                          ),
+                        ),
+                        if (isPast && !isCurrent)
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Icon(Icons.check_circle,
+                                size: 16, color: Colors.green),
+                          ),
+                        if (!isUnlocked)
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Icon(Icons.lock,
+                                size: 16, color: Colors.white.withOpacity(0.3)),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            SizedBox(height: 32),
+
+            // Daily Workouts with enhanced UI
+            Text('This Week\'s Training',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Text('Tap any workout to begin logging',
+                style: TextStyle(
+                    fontSize: 13, color: Colors.white.withOpacity(0.5))),
+            SizedBox(height: 16),
+
+            ...weekData.dailyWorkouts.asMap().entries.map((entry) {
+              final index = entry.key;
+              final daily = entry.value;
+              final isCompleted = index < completedWorkouts && !daily.isRestDay;
+
+              return TweenAnimationBuilder(
+                duration: Duration(milliseconds: 400),
+                tween: Tween<double>(begin: 0, end: 1),
+                builder: (context, double value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Opacity(
+                      opacity: value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: GestureDetector(
+                  onTap: !daily.isRestDay
+                      ? () {
+                          Navigator.pushNamed(
+                            context,
+                            '/workout-logger',
+                            arguments: {
+                              'program': program,
+                              'week': currentWeek,
+                              'daily': daily,
+                              'weekData': weekData,
+                            },
+                          );
+                        }
+                      : null,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(bottom: 12),
+                    padding: EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      gradient: isCompleted
+                          ? LinearGradient(
+                              colors: [
+                                Colors.green.withOpacity(0.2),
+                                Colors.green.withOpacity(0.05)
+                              ],
+                            )
+                          : null,
+                      color: isCompleted
+                          ? null
+                          : daily.isRestDay
+                              ? Color(0xFF1E1E1E)
+                              : Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isCompleted
+                            ? Colors.green.withOpacity(0.5)
+                            : daily.isRestDay
+                                ? Colors.white.withOpacity(0.1)
+                                : Color(0xFFB4F04D).withOpacity(0.3),
+                        width: isCompleted ? 2 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 200),
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            gradient: isCompleted
+                                ? LinearGradient(
+                                    colors: [Colors.green, Colors.green.shade700],
+                                  )
+                                : daily.isRestDay
+                                    ? null
+                                    : LinearGradient(
+                                        colors: [
+                                          Color(0xFFB4F04D),
+                                          Color(0xFFB4F04D).withOpacity(0.8)
+                                        ],
+                                      ),
+                            color: daily.isRestDay
+                                ? Colors.grey.withOpacity(0.2)
+                                : null,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: isCompleted || !daily.isRestDay
+                                ? [
+                                    BoxShadow(
+                                      color: (isCompleted
+                                              ? Colors.green
+                                              : Color(0xFFB4F04D))
+                                          .withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Center(
+                            child: isCompleted
+                                ? Icon(Icons.check_circle,
+                                    color: Colors.white, size: 28)
+                                : Text(
+                                    daily.day.shortName,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: daily.isRestDay
+                                          ? Colors.grey
+                                          : Colors.black,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(daily.day.displayName,
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  if (isCompleted)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border:
+                                            Border.all(color: Colors.green),
+                                      ),
+                                      child: Text('Complete',
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                ],
+                              ),
+                              SizedBox(height: 6),
+                              Text(daily.focus,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white.withOpacity(0.7))),
+                              if (!daily.isRestDay) ...[
+                                SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(Icons.fitness_center,
+                                        size: 14,
+                                        color: Colors.white.withOpacity(0.5)),
+                                    SizedBox(width: 6),
+                                    Text('${daily.exerciseCount} exercises',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                Colors.white.withOpacity(0.5))),
+                                    SizedBox(width: 12),
+                                    Icon(Icons.schedule,
+                                        size: 14,
+                                        color: Colors.white.withOpacity(0.5)),
+                                    SizedBox(width: 6),
+                                    Text('45-60 min',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                Colors.white.withOpacity(0.5))),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        if (!daily.isRestDay && !isCompleted)
+                          Icon(Icons.arrow_forward_ios,
+                              color: Color(0xFFB4F04D), size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedStatCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required String subtitle,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 26),
+          SizedBox(height: 10),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+          SizedBox(height: 4),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withOpacity(0.6),
+                  fontWeight: FontWeight.w600)),
+          SizedBox(height: 2),
+          Text(subtitle,
+              style: TextStyle(
+                  fontSize: 10, color: color.withOpacity(0.7))),
+        ],
+      ),
+    );
+  }
+
+  void _showProgramInfo(BuildContext context, WorkoutProgram program) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: Color(0xFFB4F04D)),
+            SizedBox(width: 12),
+            Text('Program Info'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(program.name,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Text(program.description,
+                style: TextStyle(color: Colors.white.withOpacity(0.7))),
+            SizedBox(height: 16),
+            _buildInfoRow(Icons.calendar_today, '${program.totalWeeks} weeks'),
+            _buildInfoRow(Icons.sports, program.sport.displayName),
+            _buildInfoRow(Icons.psychology, 'RPE-based auto-regulation'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Got it', style: TextStyle(color: Color(0xFFB4F04D))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.white.withOpacity(0.6)),
+          SizedBox(width: 12),
+          Text(text, style: TextStyle(color: Colors.white.withOpacity(0.8))),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================
+// WORKOUT LOGGER SCREEN - Enhanced with Satisfaction & Fatigue Awareness
+// ============================================
+class WorkoutLoggerScreen extends StatefulWidget {
+  @override
+  _WorkoutLoggerScreenState createState() => _WorkoutLoggerScreenState();
+}
+
+class _WorkoutLoggerScreenState extends State<WorkoutLoggerScreen>
+    with SingleTickerProviderStateMixin {
+  Map<String, List<Map<String, dynamic>>> loggedSets = {};
+  Map<String, bool> completedExercises = {};
+  late AnimationController _celebrationController;
+  DateTime? workoutStartTime;
+
+  @override
+  void initState() {
+    super.initState();
+    workoutStartTime = DateTime.now();
+    _celebrationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 600),
+    );
+  }
+
+  @override
+  void dispose() {
+    _celebrationController.dispose();
+    super.dispose();
+  }
+
+  double get sessionAvgRPE {
+    List<double> allRPEs = [];
+    loggedSets.forEach((exercise, sets) {
+      sets.forEach((set) {
+        allRPEs.add(set['rpe'] as double);
+      });
+    });
+    if (allRPEs.isEmpty) return 0;
+    return allRPEs.reduce((a, b) => a + b) / allRPEs.length;
+  }
+
+  int get totalSetsLogged {
+    int total = 0;
+    loggedSets.forEach((exercise, sets) {
+      total += sets.length;
+    });
+    return total;
+  }
+
+  String get workoutDuration {
+    if (workoutStartTime == null) return '0:00';
+    final duration = DateTime.now().difference(workoutStartTime!);
+    return '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  void logSet(String exerciseName, double weight, int reps, double rpe) {
+    setState(() {
+      if (!loggedSets.containsKey(exerciseName)) {
+        loggedSets[exerciseName] = [];
+      }
+      loggedSets[exerciseName]!.add({
+        'weight': weight,
+        'reps': reps,
+        'rpe': rpe,
+        'timestamp': DateTime.now(),
+      });
+    });
+
+    // Celebration animation for first few sets
+    if (totalSetsLogged <= 3) {
+      _celebrationController.forward(from: 0);
+    }
+  }
+
+  void markExerciseComplete(String exerciseName) {
+    setState(() {
+      completedExercises[exerciseName] = true;
+    });
+    _celebrationController.forward(from: 0);
+  }
+
+  Color _getRPEColor(double rpe) {
+    if (rpe <= 4) return Colors.blue;
+    if (rpe <= 6) return Colors.green;
+    if (rpe <= 7) return Color(0xFFB4F04D);
+    if (rpe <= 8) return Colors.orange;
+    return Colors.red;
+  }
+
+  String _getRPEFeedback(double rpe, int targetMin, int targetMax) {
+    if (rpe < targetMin) {
+      return 'Below target - add weight next set';
+    } else if (rpe > targetMax) {
+      return 'Above target - reduce weight or reps';
+    } else {
+      return 'Perfect! Right on target 🎯';
+    }
+  }
+
+  String _getFatigueMessage(double avgRPE, int targetMin, int targetMax) {
+    if (avgRPE == 0) return 'Ready to start your session!';
+    
+    if (avgRPE < targetMin - 1) {
+      return '💪 You\'re feeling strong today! Consider adding weight.';
+    } else if (avgRPE > targetMax + 1) {
+      return '😅 High RPE detected. Listen to your body - it\'s okay to reduce volume.';
+    } else if (avgRPE >= targetMin && avgRPE <= targetMax) {
+      return '🎯 Perfect! You\'re in the sweet spot.';
+    } else {
+      return '📊 Keep monitoring your RPE as you progress.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final program = args['program'] as WorkoutProgram;
+    final week = args['week'] as int;
+    final daily = args['daily'] as DailyWorkout;
+    final weekData = args['weekData'] as ProgramWeek;
+
+    final completedCount = completedExercises.values.where((v) => v).length;
+    final totalExercises = daily.exercises.length;
+    final allCompleted = completedCount == totalExercises;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF1E1E1E),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(daily.day.displayName, style: TextStyle(fontSize: 16)),
+            Text(daily.focus,
+                style: TextStyle(
+                    fontSize: 12, color: Colors.white.withOpacity(0.6))),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Color(0xFFB4F04D).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.timer, size: 14, color: Color(0xFFB4F04D)),
+                SizedBox(width: 6),
+                Text(workoutDuration,
+                    style: TextStyle(
+                        color: Color(0xFFB4F04D),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13)),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => _showFinishDialog(context, weekData),
+            child: Text('Finish',
+                style: TextStyle(
+                    color: allCompleted ? Color(0xFFB4F04D) : Colors.white.withOpacity(0.6),
+                    fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Enhanced session stats with fatigue awareness
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFB4F04D).withOpacity(0.2),
+                    Color(0xFFB4F04D).withOpacity(0.05)
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Color(0xFFB4F04D).withOpacity(0.4)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.flag, color: Color(0xFFB4F04D), size: 20),
+                                SizedBox(width: 8),
+                                Text('Target RPE',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.6),
+                                        fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                                '${weekData.targetRPEMin}-${weekData.targetRPEMax}',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                      if (loggedSets.isNotEmpty) ...[
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.trending_up,
+                                      color: sessionAvgRPE >= weekData.targetRPEMin &&
+                                              sessionAvgRPE <= weekData.targetRPEMax
+                                          ? Colors.green
+                                          : Colors.orange,
+                                      size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Your Avg',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.6),
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                sessionAvgRPE.toStringAsFixed(1),
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: sessionAvgRPE >= weekData.targetRPEMin &&
+                                          sessionAvgRPE <= weekData.targetRPEMax
+                                      ? Colors.green
+                                      : Colors.orange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (loggedSets.isNotEmpty) ...[
+                    SizedBox(height: 16),
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.psychology,
+                              color: Color(0xFFB4F04D), size: 18),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _getFatigueMessage(sessionAvgRPE,
+                                  weekData.targetRPEMin, weekData.targetRPEMax),
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white.withOpacity(0.8),
+                                  height: 1.3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMiniStat(
+                            'Sets', totalSetsLogged.toString(), Icons.list),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMiniStat('Completed',
+                            '$completedCount/$totalExercises', Icons.check_circle),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 28),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Today\'s Exercises',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                if (allCompleted)
+                  ScaleTransition(
+                    scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+                        CurvedAnimation(
+                            parent: _celebrationController,
+                            curve: Curves.elasticOut)),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.celebration, color: Colors.white, size: 16),
+                          SizedBox(width: 6),
+                          Text('All Done!',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: 16),
+
+            ...daily.exercises.map((exercise) {
+              final isCompleted = completedExercises[exercise.name] ?? false;
+              final exerciseSets = loggedSets[exercise.name] ?? [];
+
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  gradient: isCompleted
+                      ? LinearGradient(
+                          colors: [
+                            Colors.green.withOpacity(0.25),
+                            Colors.green.withOpacity(0.08)
+                          ],
+                        )
+                      : null,
+                  color: isCompleted ? null : Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isCompleted
+                        ? Colors.green
+                        : exercise.isMain
+                            ? Color(0xFFB4F04D)
+                            : Colors.white.withOpacity(0.1),
+                    width: exercise.isMain || isCompleted ? 2 : 1,
+                  ),
+                  boxShadow: isCompleted || exercise.isMain
+                      ? [
+                          BoxShadow(
+                            color: (isCompleted ? Colors.green : Color(0xFFB4F04D))
+                                .withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          )
+                        ]
+                      : null,
+                ),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    initiallyExpanded: exercise.isMain && !isCompleted,
+                    leading: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: isCompleted
+                            ? LinearGradient(
+                                colors: [Colors.green, Colors.green.shade700])
+                            : exercise.isMain
+                                ? LinearGradient(
+                                    colors: [
+                                      Color(0xFFB4F04D),
+                                      Color(0xFFB4F04D).withOpacity(0.8)
+                                    ],
+                                  )
+                                : null,
+                        color: isCompleted || exercise.isMain
+                            ? null
+                            : Colors.white.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        isCompleted
+                            ? Icons.check_circle
+                            : exercise.isMain
+                                ? Icons.fitness_center
+                                : Icons.circle_outlined,
+                        color: isCompleted
+                            ? Colors.white
+                            : exercise.isMain
+                                ? Colors.black
+                                : Colors.white.withOpacity(0.5),
+                        size: 22,
+                      ),
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(exercise.name,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                        ),
+                        if (exercise.isMain)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFB4F04D).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: Color(0xFFB4F04D).withOpacity(0.5)),
+                            ),
+                            child: Text('MAIN',
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFFB4F04D),
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 6),
+                        Text('${exercise.sets} sets × ${exercise.reps} reps',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withOpacity(0.7),
+                                fontWeight: FontWeight.w500)),
+                        if (exercise.intensityDisplay.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text('@ ${exercise.intensityDisplay}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.5))),
+                          ),
+                      ],
+                    ),
+                    trailing: exerciseSets.isNotEmpty
+                        ? Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: isCompleted
+                                  ? Colors.green.withOpacity(0.2)
+                                  : Color(0xFFB4F04D).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                  color: isCompleted
+                                      ? Colors.green
+                                      : Color(0xFFB4F04D)),
+                            ),
+                            child: Text('${exerciseSets.length}/${exercise.sets}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: isCompleted
+                                        ? Colors.green
+                                        : Color(0xFFB4F04D),
+                                    fontWeight: FontWeight.bold)),
+                          )
+                        : null,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (exerciseSets.isNotEmpty) ...[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Logged Sets:',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold)),
+                                  Text('${exerciseSets.length} of ${exercise.sets}',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.6))),
+                                ],
+                              ),
+                              SizedBox(height: 12),
+                              ...exerciseSets.asMap().entries.map((entry) {
+                                final setNum = entry.key + 1;
+                                final set = entry.value;
+                                return AnimatedContainer(
+                                  duration: Duration(milliseconds: 200),
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  padding: EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF2A2A2A),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                        color:
+                                            _getRPEColor(set['rpe']).withOpacity(0.3)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              _getRPEColor(set['rpe']),
+                                              _getRPEColor(set['rpe'])
+                                                  .withOpacity(0.7)
+                                            ],
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                            child: Text('$setNum',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Colors.white))),
+                                      ),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                '${set['weight']}kg × ${set['reps']} reps',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600)),
+                                            SizedBox(height: 3),
+                                            Text(
+                                                TimeOfDay.fromDateTime(
+                                                        set['timestamp'])
+                                                    .format(context),
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.white
+                                                        .withOpacity(0.5))),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: _getRPEColor(set['rpe'])
+                                              .withOpacity(0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: _getRPEColor(set['rpe'])),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Text(set['rpe'].toStringAsFixed(1),
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        _getRPEColor(set['rpe']))),
+                                            Text('RPE',
+                                                style: TextStyle(
+                                                    fontSize: 9,
+                                                    color: _getRPEColor(set['rpe'])
+                                                        .withOpacity(0.7))),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              SizedBox(height: 16),
+                            ],
+                            if (!isCompleted) ...[
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  _showLogSetDialog(
+                                      context,
+                                      exercise,
+                                      weekData.targetRPEMin,
+                                      weekData.targetRPEMax);
+                                },
+                                icon: Icon(Icons.add_circle_outline),
+                                label: Text('Log Set'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFB4F04D),
+                                  foregroundColor: Colors.black,
+                                  minimumSize: Size(double.infinity, 52),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14)),
+                                  elevation: 0,
+                                ),
+                              ),
+                              if (exerciseSets.length >= exercise.sets)
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        markExerciseComplete(exercise.name),
+                                    icon: Icon(Icons.check_circle_outline),
+                                    label: Text('Mark Exercise Complete'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.green,
+                                      side: BorderSide(
+                                          color: Colors.green, width: 2),
+                                      minimumSize: Size(double.infinity, 52),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14)),
+                                    ),
+                                  ),
+                                ),
+                            ] else ...[
+                              Container(
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.green),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle,
+                                        color: Colors.green, size: 24),
+                                    SizedBox(width: 12),
+                                    Text('Exercise Complete!',
+                                        style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniStat(String label, String value, IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Color(0xFFB4F04D), size: 18),
+          SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(label,
+                  style: TextStyle(
+                      fontSize: 10, color: Colors.white.withOpacity(0.6))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogSetDialog(BuildContext context, Exercise exercise,
+      int targetRPEMin, int targetRPEMax) {
+    final weightController = TextEditingController();
+    final repsController = TextEditingController();
+    double currentRPE = (targetRPEMin + targetRPEMax) / 2;
+
+    // Pre-fill with previous set data if available
+    final exerciseSets = loggedSets[exercise.name];
+    if (exerciseSets != null && exerciseSets.isNotEmpty) {
+      final lastSet = exerciseSets.last;
+      weightController.text = lastSet['weight'].toString();
+      repsController.text = lastSet['reps'].toString();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Color(0xFF1E1E1E),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(exercise.name, style: TextStyle(fontSize: 18)),
+              SizedBox(height: 4),
+              Text(
+                  'Set ${(exerciseSets?.length ?? 0) + 1} of ${exercise.sets}',
+                  style: TextStyle(
+                      fontSize: 13, color: Colors.white.withOpacity(0.6))),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB4F04D).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border:
+                        Border.all(color: Color(0xFFB4F04D).withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline,
+                          color: Color(0xFFB4F04D), size: 18),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                            'Target: ${exercise.sets} × ${exercise.reps} @ ${exercise.intensityDisplay}',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.8))),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: weightController,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        decoration: InputDecoration(
+                          labelText: 'Weight (kg)',
+                          labelStyle:
+                              TextStyle(color: Colors.white.withOpacity(0.6)),
+                          filled: true,
+                          fillColor: Color(0xFF2A2A2A),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          prefixIcon: Icon(Icons.fitness_center,
+                              color: Colors.white.withOpacity(0.5)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: repsController,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        decoration: InputDecoration(
+                          labelText: 'Reps',
+                          labelStyle:
+                              TextStyle(color: Colors.white.withOpacity(0.6)),
+                          filled: true,
+                          fillColor: Color(0xFF2A2A2A),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          prefixIcon: Icon(Icons.repeat,
+                              color: Colors.white.withOpacity(0.5)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+                Text('Rate of Perceived Exertion (RPE)',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                SizedBox(height: 4),
+                Text('How hard was this set?',
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.white.withOpacity(0.5))),
+                SizedBox(height: 12),
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        _getRPEColor(currentRPE).withOpacity(0.2),
+                        _getRPEColor(currentRPE).withOpacity(0.05)
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: _getRPEColor(currentRPE).withOpacity(0.4)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        currentRPE.toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: _getRPEColor(currentRPE),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(_getRPEDescription(currentRPE),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.7))),
+                      SizedBox(height: 16),
+                      SliderTheme(
+                        data: SliderThemeData(
+                          activeTrackColor: _getRPEColor(currentRPE),
+                          inactiveTrackColor: Colors.white.withOpacity(0.1),
+                          thumbColor: _getRPEColor(currentRPE),
+                          overlayColor:
+                              _getRPEColor(currentRPE).withOpacity(0.2),
+                          trackHeight: 10,
+                          thumbShape:
+                              RoundSliderThumbShape(enabledThumbRadius: 14),
+                        ),
+                        child: Slider(
+                          value: currentRPE,
+                          min: 1,
+                          max: 10,
+                          divisions: 18,
+                          onChanged: (value) =>
+                              setDialogState(() => currentRPE = value),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('1',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue)),
+                              Text('Easy',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white.withOpacity(0.5))),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('10',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red)),
+                              Text('Max',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white.withOpacity(0.5))),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16),
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  padding: EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: (currentRPE >= targetRPEMin &&
+                            currentRPE <= targetRPEMax)
+                        ? Colors.green.withOpacity(0.2)
+                        : (currentRPE < targetRPEMin)
+                            ? Colors.orange.withOpacity(0.2)
+                            : Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: (currentRPE >= targetRPEMin &&
+                              currentRPE <= targetRPEMax)
+                          ? Colors.green
+                          : (currentRPE < targetRPEMin)
+                              ? Colors.orange
+                              : Colors.red,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        (currentRPE >= targetRPEMin &&
+                                currentRPE <= targetRPEMax)
+                            ? Icons.check_circle
+                            : (currentRPE < targetRPEMin)
+                                ? Icons.info_outline
+                                : Icons.warning_amber,
+                        color: (currentRPE >= targetRPEMin &&
+                                currentRPE <= targetRPEMax)
+                            ? Colors.green
+                            : (currentRPE < targetRPEMin)
+                                ? Colors.orange
+                                : Colors.red,
+                        size: 22,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _getRPEFeedback(currentRPE, targetRPEMin, targetRPEMax),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: (currentRPE >= targetRPEMin &&
+                                    currentRPE <= targetRPEMax)
+                                ? Colors.green
+                                : (currentRPE < targetRPEMin)
+                                    ? Colors.orange
+                                    : Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel',
+                  style: TextStyle(color: Colors.white.withOpacity(0.6))),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (weightController.text.isNotEmpty &&
+                    repsController.text.isNotEmpty) {
+                  logSet(
+                    exercise.name,
+                    double.parse(weightController.text),
+                    int.parse(repsController.text),
+                    currentRPE,
+                  );
+                  Navigator.pop(context);
+                  
+                  // Show encouraging snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Color(0xFFB4F04D)),
+                          SizedBox(width: 12),
+                          Text('Set logged! Keep it up 💪'),
+                        ],
+                      ),
+                      backgroundColor: Color(0xFF2A2A2A),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB4F04D),
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text('Log Set',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getRPEDescription(double rpe) {
+    if (rpe <= 2) return 'Very light - barely any effort';
+    if (rpe <= 4) return 'Light - could do many more reps';
+    if (rpe <= 6) return 'Moderate - 4+ reps in reserve';
+    if (rpe <= 7) return 'Challenging - 2-3 reps in reserve';
+    if (rpe <= 8) return 'Hard - 1-2 reps in reserve';
+    if (rpe <= 9) return 'Very hard - 1 rep in reserve';
+    return 'Maximum - couldn\'t do another rep';
+  }
+
+  void _showFinishDialog(BuildContext context, ProgramWeek weekData) {
+    final completedCount = completedExercises.values.where((v) => v).length;
+    final totalExercises =
+        (ModalRoute.of(context)!.settings.arguments as Map)['daily']
+            .exercises
+            .length;
+    final allCompleted = completedCount == totalExercises;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: allCompleted
+                    ? Color(0xFFB4F04D).withOpacity(0.2)
+                    : Colors.orange.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                  allCompleted ? Icons.celebration : Icons.info_outline,
+                  color: allCompleted ? Color(0xFFB4F04D) : Colors.orange,
+                  size: 28),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                  allCompleted ? 'Workout Complete!' : 'Finish Workout?',
+                  style: TextStyle(fontSize: 20)),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!allCompleted) ...[
+                Text(
+                    'You haven\'t completed all exercises yet. Are you sure you want to finish?',
+                    style: TextStyle(color: Colors.white.withOpacity(0.7))),
+                SizedBox(height: 16),
+              ],
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color(0xFF2A2A2A),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    _buildSummaryRow('Duration', workoutDuration,
+                        Icons.timer, Color(0xFF4ECDC4)),
+                    Divider(color: Colors.white.withOpacity(0.1), height: 24),
+                    _buildSummaryRow('Total Sets', totalSetsLogged.toString(),
+                        Icons.list, Color(0xFFB4F04D)),
+                    Divider(color: Colors.white.withOpacity(0.1), height: 24),
+                    _buildSummaryRow(
+                        'Avg RPE',
+                        loggedSets.isNotEmpty
+                            ? sessionAvgRPE.toStringAsFixed(1)
+                            : 'N/A',
+                        Icons.trending_up,
+                        sessionAvgRPE >= weekData.targetRPEMin &&
+                                sessionAvgRPE <= weekData.targetRPEMax
+                            ? Colors.green
+                            : Colors.orange),
+                    Divider(color: Colors.white.withOpacity(0.1), height: 24),
+                    _buildSummaryRow(
+                        'Completed',
+                        '$completedCount/$totalExercises exercises',
+                        Icons.check_circle,
+                        allCompleted ? Colors.green : Colors.orange),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+              if (allCompleted) ...[
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFB4F04D).withOpacity(0.2),
+                        Color(0xFFB4F04D).withOpacity(0.05)
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        Border.all(color: Color(0xFFB4F04D).withOpacity(0.5)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text('🎉 Outstanding Work!',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFB4F04D))),
+                      SizedBox(height: 8),
+                      Text(
+                        sessionAvgRPE >= weekData.targetRPEMin &&
+                                sessionAvgRPE <= weekData.targetRPEMax
+                            ? 'Your RPE was right on target. Perfect execution!'
+                            : sessionAvgRPE < weekData.targetRPEMin
+                                ? 'Your RPE was lower than target. Consider adding weight next session.'
+                                : 'Your RPE was higher than target. Great effort, but listen to your body.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white.withOpacity(0.7),
+                            height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Keep Training',
+                style: TextStyle(color: Colors.white.withOpacity(0.6))),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Return to week dashboard
+              
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.celebration, color: Color(0xFFB4F04D)),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                            allCompleted
+                                ? 'Workout saved! Keep up the momentum 🔥'
+                                : 'Progress saved. Rest up and come back stronger!',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Color(0xFF2A2A2A),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: allCompleted ? Color(0xFFB4F04D) : Colors.orange,
+              foregroundColor: Colors.black,
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Finish Workout',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(
+      String label, String value, IconData icon, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            SizedBox(width: 10),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 14, color: Colors.white.withOpacity(0.7))),
+          ],
+        ),
+        Text(value,
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+      ],
+    );
+  }
+}

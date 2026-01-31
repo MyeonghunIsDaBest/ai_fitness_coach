@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Color schemes for light and dark themes
-/// Preserves existing brand colors: Lime Green (#B4F04D) and Cyan (#00D9FF)
+/// Semi-dark theme inspired by modern web fitness app design
 class AppColorSchemes {
   AppColorSchemes._();
 
@@ -9,23 +9,23 @@ class AppColorSchemes {
   static const ColorScheme light = ColorScheme(
     brightness: Brightness.light,
 
-    // Primary colors - Lime Green
-    primary: Color(0xFFB4F04D),
-    onPrimary: Color(0xFF000000),
-    primaryContainer: Color(0xFFD4FF8D),
-    onPrimaryContainer: Color(0xFF1A1F00),
+    // Primary colors - Blue (matching web design)
+    primary: Color(0xFF3B82F6),
+    onPrimary: Color(0xFFFFFFFF),
+    primaryContainer: Color(0xFFDBEAFE),
+    onPrimaryContainer: Color(0xFF1E3A8A),
 
-    // Secondary colors - Cyan
-    secondary: Color(0xFF00D9FF),
+    // Secondary colors - Lime Green accent
+    secondary: Color(0xFFB4F04D),
     onSecondary: Color(0xFF000000),
-    secondaryContainer: Color(0xFF80ECFF),
-    onSecondaryContainer: Color(0xFF001F26),
+    secondaryContainer: Color(0xFFD4FF8D),
+    onSecondaryContainer: Color(0xFF1A1F00),
 
-    // Tertiary colors
-    tertiary: Color(0xFF7B61FF),
-    onTertiary: Color(0xFFFFFFFF),
-    tertiaryContainer: Color(0xFFE5DEFF),
-    onTertiaryContainer: Color(0xFF1B0067),
+    // Tertiary colors - Cyan
+    tertiary: Color(0xFF00D9FF),
+    onTertiary: Color(0xFF000000),
+    tertiaryContainer: Color(0xFF80ECFF),
+    onTertiaryContainer: Color(0xFF001F26),
 
     // Error colors
     error: Color(0xFFFF6B6B),
@@ -34,48 +34,48 @@ class AppColorSchemes {
     onErrorContainer: Color(0xFF410002),
 
     // Background colors
-    background: Color(0xFFFFFBFF),
+    background: Color(0xFFF8FAFC),
     onBackground: Color(0xFF1C1B1F),
 
     // Surface colors
-    surface: Color(0xFFFFFBFF),
+    surface: Color(0xFFFFFFFF),
     onSurface: Color(0xFF1C1B1F),
-    surfaceVariant: Color(0xFFE7E0EC),
+    surfaceVariant: Color(0xFFF1F5F9),
     onSurfaceVariant: Color(0xFF49454F),
 
     // Outline colors
-    outline: Color(0xFF79747E),
-    outlineVariant: Color(0xFFCAC4D0),
+    outline: Color(0xFFCBD5E1),
+    outlineVariant: Color(0xFFE2E8F0),
 
     // Other colors
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
     inverseSurface: Color(0xFF313033),
     onInverseSurface: Color(0xFFF4EFF4),
-    inversePrimary: Color(0xFFB4F04D),
+    inversePrimary: Color(0xFF3B82F6),
   );
 
-  /// Dark theme color scheme (default)
+  /// Semi-dark theme color scheme (default) - Modern fitness app design
   static const ColorScheme dark = ColorScheme(
     brightness: Brightness.dark,
 
-    // Primary colors - Lime Green
-    primary: Color(0xFFB4F04D),
-    onPrimary: Color(0xFF000000),
-    primaryContainer: Color(0xFF4E6000),
-    onPrimaryContainer: Color(0xFFD4FF8D),
+    // Primary colors - Blue (matching web design gradient)
+    primary: Color(0xFF3B82F6),
+    onPrimary: Color(0xFFFFFFFF),
+    primaryContainer: Color(0xFF2563EB),
+    onPrimaryContainer: Color(0xFFDBEAFE),
 
-    // Secondary colors - Cyan
-    secondary: Color(0xFF00D9FF),
+    // Secondary colors - Lime Green accent
+    secondary: Color(0xFFB4F04D),
     onSecondary: Color(0xFF000000),
-    secondaryContainer: Color(0xFF004D5C),
-    onSecondaryContainer: Color(0xFF80ECFF),
+    secondaryContainer: Color(0xFF4E6000),
+    onSecondaryContainer: Color(0xFFD4FF8D),
 
-    // Tertiary colors
-    tertiary: Color(0xFFCABDFF),
-    onTertiary: Color(0xFF32009F),
-    tertiaryContainer: Color(0xFF4A00E0),
-    onTertiaryContainer: Color(0xFFE5DEFF),
+    // Tertiary colors - Cyan
+    tertiary: Color(0xFF00D9FF),
+    onTertiary: Color(0xFF000000),
+    tertiaryContainer: Color(0xFF004D5C),
+    onTertiaryContainer: Color(0xFF80ECFF),
 
     // Error colors
     error: Color(0xFFFF6B6B),
@@ -83,36 +83,41 @@ class AppColorSchemes {
     errorContainer: Color(0xFF93000A),
     onErrorContainer: Color(0xFFFFDAD6),
 
-    // Background colors
-    background: Color(0xFF0A0A0A),
-    onBackground: Color(0xFFE6E1E5),
+    // Background colors - Semi-dark (slightly lighter than pure black)
+    background: Color(0xFF0F172A),
+    onBackground: Color(0xFFE2E8F0),
 
-    // Surface colors
-    surface: Color(0xFF1E1E1E),
-    onSurface: Color(0xFFE6E1E5),
-    surfaceVariant: Color(0xFF2B2B2B),
-    onSurfaceVariant: Color(0xFFCAC4D0),
+    // Surface colors - Card backgrounds
+    surface: Color(0xFF1E293B),
+    onSurface: Color(0xFFE2E8F0),
+    surfaceVariant: Color(0xFF334155),
+    onSurfaceVariant: Color(0xFFCBD5E1),
 
     // Outline colors
-    outline: Color(0xFF938F99),
-    outlineVariant: Color(0xFF49454F),
+    outline: Color(0xFF475569),
+    outlineVariant: Color(0xFF334155),
 
     // Other colors
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
-    inverseSurface: Color(0xFFE6E1E5),
-    onInverseSurface: Color(0xFF313033),
-    inversePrimary: Color(0xFF4E6000),
+    inverseSurface: Color(0xFFE2E8F0),
+    onInverseSurface: Color(0xFF1E293B),
+    inversePrimary: Color(0xFF2563EB),
   );
 }
 
-/// Extension for custom sport-specific colors
+/// Extension for custom sport-specific colors (matching web design gradients)
 extension SportColors on ColorScheme {
-  Color get sportPowerlifting => const Color(0xFFFF6B6B);
-  Color get sportBodybuilding => const Color(0xFF4ECDC4);
-  Color get sportCrossfit => const Color(0xFFFF9800);
-  Color get sportOlympicLifting => const Color(0xFFFFC107);
-  Color get sportGeneralFitness => const Color(0xFF9C27B0);
+  Color get sportPowerlifting => const Color(0xFFEF4444);
+  Color get sportPowerliftingEnd => const Color(0xFFF97316);
+  Color get sportBodybuilding => const Color(0xFF3B82F6);
+  Color get sportBodybuildingEnd => const Color(0xFF8B5CF6);
+  Color get sportCrossfit => const Color(0xFF10B981);
+  Color get sportCrossfitEnd => const Color(0xFF14B8A6);
+  Color get sportOlympicLifting => const Color(0xFFF59E0B);
+  Color get sportOlympicLiftingEnd => const Color(0xFFF97316);
+  Color get sportGeneralFitness => const Color(0xFF06B6D4);
+  Color get sportGeneralFitnessEnd => const Color(0xFF3B82F6);
 }
 
 /// Extension for RPE (Rate of Perceived Exertion) color mapping

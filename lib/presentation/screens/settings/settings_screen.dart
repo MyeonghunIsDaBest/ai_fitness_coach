@@ -6,23 +6,28 @@ import 'package:go_router/go_router.dart';
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
+  // Semi-dark theme colors
+  static const _backgroundColor = Color(0xFF0F172A);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: _backgroundColor,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Settings',
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),
@@ -363,8 +368,12 @@ class _SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF334155),
+          width: 1,
+        ),
       ),
       child: Column(children: children),
     );
@@ -442,6 +451,7 @@ class _SettingsToggle extends StatelessWidget {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
+        activeColor: const Color(0xFF3B82F6),
       ),
     );
   }
