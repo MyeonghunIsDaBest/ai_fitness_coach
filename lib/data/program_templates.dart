@@ -11,6 +11,7 @@ import '../data/templates/powerlifting_templates.dart';
 import '../data/templates/crossfit_templates.dart';
 import '../data/templates/bodybuilding_templates.dart';
 import '../data/templates/general_fitness_templates.dart';
+import '../data/templates/olympic_lifting_templates.dart';
 
 /// Pre-built workout program templates
 class ProgramTemplates {
@@ -536,6 +537,11 @@ class ProgramTemplates {
       CrossFitTemplates.beginnerFundamentals,
       CrossFitTemplates.intermediateCompPrep,
       CrossFitTemplates.hyroxTraining,
+
+      // Olympic Lifting templates
+      OlympicLiftingTemplates.beginnerTechnique,
+      OlympicLiftingTemplates.intermediateStrength,
+      OlympicLiftingTemplates.competitionPeaking,
 
       // General Fitness templates
       GeneralFitnessTemplates.beginnerFullBody,

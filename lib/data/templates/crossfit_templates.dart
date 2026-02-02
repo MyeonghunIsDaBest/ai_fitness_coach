@@ -267,8 +267,343 @@ class CrossFitTemplates {
   }
 
   static List<ProgramWeek> _generateCompPrepWeeks() {
-    // Implementation similar to beginner but more advanced
-    return [];
+    List<ProgramWeek> weeks = [];
+
+    // Phase 1: Base Building (Weeks 1-4)
+    for (int i = 1; i <= 4; i++) {
+      weeks.add(_createCompPrepWeek(i, Phase.hypertrophy, 7.0, 8.5));
+    }
+
+    // Phase 2: Intensity (Weeks 5-8)
+    for (int i = 5; i <= 8; i++) {
+      weeks.add(_createCompPrepWeek(i, Phase.strength, 8.0, 9.0));
+    }
+
+    // Phase 3: Peaking (Weeks 9-11)
+    for (int i = 9; i <= 11; i++) {
+      weeks.add(_createCompPrepWeek(i, Phase.peaking, 8.5, 9.5));
+    }
+
+    // Week 12: Taper
+    weeks.add(_createTaperWeek(12));
+
+    return weeks;
+  }
+
+  static ProgramWeek _createCompPrepWeek(
+    int weekNumber,
+    Phase phase,
+    double rpeMin,
+    double rpeMax,
+  ) {
+    return ProgramWeek.normal(
+      weekNumber: weekNumber,
+      phase: phase,
+      targetRPEMin: rpeMin,
+      targetRPEMax: rpeMax,
+      dailyWorkouts: [
+        // MONDAY - Olympic Lifting Focus
+        DailyWorkout.trainingDay(
+          dayId: 'mon',
+          dayName: 'Monday',
+          dayNumber: 1,
+          focus: 'Olympic Lifting & Strength',
+          exercises: [
+            Exercise.mainLift(
+              name: 'Snatch',
+              liftType: LiftType.snatch,
+              sets: 5,
+              reps: 2,
+              targetRPEMin: rpeMin,
+              targetRPEMax: rpeMax,
+              restSeconds: 180,
+              order: 1,
+              formCues: [
+                'Full depth catch',
+                'Fast turnover',
+                'Aggressive hip extension',
+              ],
+            ),
+            Exercise.mainLift(
+              name: 'Back Squat',
+              liftType: LiftType.squat,
+              sets: 5,
+              reps: 3,
+              targetRPEMin: rpeMin + 0.5,
+              targetRPEMax: rpeMax,
+              restSeconds: 180,
+              order: 2,
+            ),
+            Exercise.accessory(
+              name: 'Strict Pull-ups',
+              liftType: LiftType.pullUp,
+              sets: 4,
+              reps: 8,
+              targetRPEMin: rpeMin - 0.5,
+              targetRPEMax: rpeMax - 0.5,
+              restSeconds: 90,
+              order: 3,
+              notes: 'Weighted if possible',
+            ),
+          ],
+        ),
+
+        // TUESDAY - MetCon Heavy
+        DailyWorkout.trainingDay(
+          dayId: 'tue',
+          dayName: 'Tuesday',
+          dayNumber: 2,
+          focus: 'Heavy MetCon',
+          exercises: [
+            Exercise.accessory(
+              name: 'AMRAP 20 min',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 20,
+              targetRPEMin: rpeMin + 1.0,
+              targetRPEMax: 10.0,
+              restSeconds: 0,
+              order: 1,
+              notes: '5 Deadlifts (225/155), 10 Box Jumps (24/20), 15 Wall Balls (20/14)',
+            ),
+            Exercise.accessory(
+              name: 'Core Finisher',
+              liftType: LiftType.other,
+              sets: 3,
+              reps: 15,
+              restSeconds: 60,
+              order: 2,
+              notes: 'Toes-to-bar or GHD Sit-ups',
+            ),
+          ],
+        ),
+
+        // WEDNESDAY - Active Recovery + Skills
+        DailyWorkout.trainingDay(
+          dayId: 'wed',
+          dayName: 'Wednesday',
+          dayNumber: 3,
+          focus: 'Skills & Recovery',
+          exercises: [
+            Exercise.accessory(
+              name: 'Rowing',
+              liftType: LiftType.rowing,
+              sets: 1,
+              reps: 3000,
+              targetRPEMin: 5.0,
+              targetRPEMax: 6.0,
+              order: 1,
+              notes: 'Easy pace, work on technique',
+            ),
+            Exercise.accessory(
+              name: 'Gymnastics Skills',
+              liftType: LiftType.other,
+              sets: 4,
+              reps: 10,
+              restSeconds: 90,
+              order: 2,
+              notes: 'Handstand practice, muscle-up progressions',
+            ),
+            Exercise.accessory(
+              name: 'Mobility Work',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 15,
+              restSeconds: 0,
+              order: 3,
+              notes: 'Hip, shoulder, and ankle mobility',
+            ),
+          ],
+        ),
+
+        // THURSDAY - Clean & Jerk + Push
+        DailyWorkout.trainingDay(
+          dayId: 'thu',
+          dayName: 'Thursday',
+          dayNumber: 4,
+          focus: 'Clean & Jerk Focus',
+          exercises: [
+            Exercise.mainLift(
+              name: 'Clean & Jerk',
+              liftType: LiftType.cleanAndJerk,
+              sets: 5,
+              reps: 2,
+              targetRPEMin: rpeMin,
+              targetRPEMax: rpeMax,
+              restSeconds: 180,
+              order: 1,
+              formCues: [
+                'Full squat clean',
+                'Strong dip and drive',
+                'Aggressive lockout',
+              ],
+            ),
+            Exercise.mainLift(
+              name: 'Push Press',
+              liftType: LiftType.overheadPress,
+              sets: 4,
+              reps: 5,
+              targetRPEMin: rpeMin,
+              targetRPEMax: rpeMax,
+              restSeconds: 150,
+              order: 2,
+            ),
+            Exercise.accessory(
+              name: 'Ring Dips',
+              liftType: LiftType.dip,
+              sets: 4,
+              reps: 10,
+              restSeconds: 90,
+              order: 3,
+              notes: 'Strict, full ROM',
+            ),
+          ],
+        ),
+
+        // FRIDAY - Competition Simulation
+        DailyWorkout.trainingDay(
+          dayId: 'fri',
+          dayName: 'Friday',
+          dayNumber: 5,
+          focus: 'Competition Simulation',
+          exercises: [
+            Exercise.accessory(
+              name: 'Workout 1: For Time',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 1,
+              targetRPEMin: rpeMin + 1.5,
+              targetRPEMax: 10.0,
+              restSeconds: 0,
+              order: 1,
+              notes: '21-15-9: Thrusters (95/65) + Pull-ups',
+            ),
+            Exercise.accessory(
+              name: 'Rest 10 min',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 10,
+              restSeconds: 0,
+              order: 2,
+            ),
+            Exercise.accessory(
+              name: 'Workout 2: AMRAP 12',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 12,
+              targetRPEMin: rpeMin + 1.5,
+              targetRPEMax: 10.0,
+              restSeconds: 0,
+              order: 3,
+              notes: '6 Power Cleans (135/95), 12 Push-ups, 24 Double Unders',
+            ),
+          ],
+        ),
+
+        // SATURDAY - Long Chipper
+        DailyWorkout.trainingDay(
+          dayId: 'sat',
+          dayName: 'Saturday',
+          dayNumber: 6,
+          focus: 'Endurance Chipper',
+          exercises: [
+            Exercise.accessory(
+              name: 'Long Chipper (30-40 min)',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 1,
+              targetRPEMin: rpeMin,
+              targetRPEMax: 9.0,
+              restSeconds: 0,
+              order: 1,
+              notes: '50 Cal Row, 40 Box Jumps, 30 KB Swings, 20 Burpees, 10 Muscle-ups',
+            ),
+          ],
+        ),
+
+        // SUNDAY - Rest
+        DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
+      ],
+    );
+  }
+
+  static ProgramWeek _createTaperWeek(int weekNumber) {
+    return ProgramWeek.deload(
+      weekNumber: weekNumber,
+      phase: Phase.peaking,
+      dailyWorkouts: [
+        // Light movement, competition prep
+        DailyWorkout.trainingDay(
+          dayId: 'mon',
+          dayName: 'Monday',
+          dayNumber: 1,
+          focus: 'Light Movement',
+          exercises: [
+            Exercise.accessory(
+              name: 'Light Snatch',
+              liftType: LiftType.snatch,
+              sets: 3,
+              reps: 2,
+              targetRPEMin: 5.0,
+              targetRPEMax: 6.0,
+              order: 1,
+              notes: '60% of max, focus on speed',
+            ),
+            Exercise.accessory(
+              name: 'Light Clean & Jerk',
+              liftType: LiftType.cleanAndJerk,
+              sets: 3,
+              reps: 2,
+              targetRPEMin: 5.0,
+              targetRPEMax: 6.0,
+              order: 2,
+              notes: '60% of max, focus on speed',
+            ),
+          ],
+        ),
+        DailyWorkout.trainingDay(
+          dayId: 'tue',
+          dayName: 'Tuesday',
+          dayNumber: 2,
+          focus: 'Short MetCon',
+          exercises: [
+            Exercise.accessory(
+              name: 'AMRAP 8 min (Light)',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 8,
+              targetRPEMin: 6.0,
+              targetRPEMax: 7.0,
+              order: 1,
+              notes: '10 Air Squats, 10 Push-ups, 10 Sit-ups - stay fresh',
+            ),
+          ],
+        ),
+        DailyWorkout.restDay(dayId: 'wed', dayName: 'Wednesday', dayNumber: 3),
+        DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
+        DailyWorkout.restDay(dayId: 'fri', dayName: 'Friday', dayNumber: 5),
+        // COMPETITION DAY
+        DailyWorkout.trainingDay(
+          dayId: 'sat',
+          dayName: 'Saturday',
+          dayNumber: 6,
+          focus: 'COMPETITION DAY',
+          exercises: [
+            Exercise.accessory(
+              name: 'Competition',
+              liftType: LiftType.other,
+              sets: 1,
+              reps: 1,
+              targetRPEMin: 10.0,
+              targetRPEMax: 10.0,
+              order: 1,
+              notes: 'Give it your all!',
+            ),
+          ],
+        ),
+        DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
+      ],
+    );
   }
 
   /// Hyrox Training Program - 10 weeks

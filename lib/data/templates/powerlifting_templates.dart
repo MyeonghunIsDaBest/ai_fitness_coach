@@ -459,9 +459,271 @@ class PowerliftingTemplates {
   }
 
   static List<ProgramWeek> _generateAdvancedDUPWeeks() {
-    // Implementation for DUP - varies rep ranges and intensity daily
-    // Simplified here
-    return [];
+    List<ProgramWeek> weeks = [];
+
+    for (int i = 1; i <= 12; i++) {
+      // Deload every 4th week
+      if (i % 4 == 0) {
+        weeks.add(_createDUPDeloadWeek(i));
+      } else {
+        weeks.add(_createDUPWeek(i));
+      }
+    }
+
+    return weeks;
+  }
+
+  static ProgramWeek _createDUPWeek(int weekNumber) {
+    return ProgramWeek.normal(
+      weekNumber: weekNumber,
+      phase: Phase.strength,
+      targetRPEMin: 7.5,
+      targetRPEMax: 9.5,
+      dailyWorkouts: [
+        // MONDAY - HYPERTROPHY DAY (High Volume, Moderate Intensity)
+        DailyWorkout.trainingDay(
+          dayId: 'mon',
+          dayName: 'Monday',
+          dayNumber: 1,
+          focus: 'Hypertrophy Day - High Volume',
+          exercises: [
+            Exercise.mainLift(
+              name: 'Back Squat',
+              liftType: LiftType.squat,
+              sets: 4,
+              reps: 10,
+              targetRPEMin: 7.0,
+              targetRPEMax: 8.0,
+              restSeconds: 120,
+              order: 1,
+              formCues: ['Control the eccentric, moderate weight'],
+            ),
+            Exercise.mainLift(
+              name: 'Bench Press',
+              liftType: LiftType.benchPress,
+              sets: 4,
+              reps: 10,
+              targetRPEMin: 7.0,
+              targetRPEMax: 8.0,
+              restSeconds: 120,
+              order: 2,
+            ),
+            Exercise.accessory(
+              name: 'Romanian Deadlift',
+              liftType: LiftType.romanianDeadlift,
+              sets: 3,
+              reps: 12,
+              targetRPEMin: 6.5,
+              targetRPEMax: 7.5,
+              restSeconds: 90,
+              order: 3,
+            ),
+            Exercise.accessory(
+              name: 'Dumbbell Row',
+              liftType: LiftType.bentOverRow,
+              sets: 3,
+              reps: 12,
+              restSeconds: 90,
+              order: 4,
+            ),
+          ],
+        ),
+
+        // TUESDAY - REST
+        DailyWorkout.restDay(dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
+
+        // WEDNESDAY - STRENGTH DAY (Moderate Volume, High Intensity)
+        DailyWorkout.trainingDay(
+          dayId: 'wed',
+          dayName: 'Wednesday',
+          dayNumber: 3,
+          focus: 'Strength Day - Heavy Singles/Triples',
+          exercises: [
+            Exercise.mainLift(
+              name: 'Back Squat',
+              liftType: LiftType.squat,
+              sets: 5,
+              reps: 3,
+              targetRPEMin: 8.5,
+              targetRPEMax: 9.5,
+              restSeconds: 240,
+              order: 1,
+              formCues: ['Heavy triples, focus on bar speed'],
+            ),
+            Exercise.mainLift(
+              name: 'Bench Press',
+              liftType: LiftType.benchPress,
+              sets: 5,
+              reps: 3,
+              targetRPEMin: 8.5,
+              targetRPEMax: 9.5,
+              restSeconds: 240,
+              order: 2,
+            ),
+            Exercise.mainLift(
+              name: 'Deadlift',
+              liftType: LiftType.deadlift,
+              sets: 3,
+              reps: 3,
+              targetRPEMin: 8.5,
+              targetRPEMax: 9.5,
+              restSeconds: 300,
+              order: 3,
+            ),
+          ],
+        ),
+
+        // THURSDAY - REST
+        DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
+
+        // FRIDAY - POWER DAY (Low Volume, Explosive)
+        DailyWorkout.trainingDay(
+          dayId: 'fri',
+          dayName: 'Friday',
+          dayNumber: 5,
+          focus: 'Power Day - Speed & Explosiveness',
+          exercises: [
+            Exercise.mainLift(
+              name: 'Speed Squat',
+              liftType: LiftType.squat,
+              sets: 8,
+              reps: 2,
+              targetRPEMin: 6.0,
+              targetRPEMax: 7.0,
+              restSeconds: 60,
+              order: 1,
+              formCues: ['50-60% of max, maximum bar speed'],
+            ),
+            Exercise.mainLift(
+              name: 'Speed Bench',
+              liftType: LiftType.benchPress,
+              sets: 8,
+              reps: 3,
+              targetRPEMin: 6.0,
+              targetRPEMax: 7.0,
+              restSeconds: 60,
+              order: 2,
+              formCues: ['50-60% of max, explosive press'],
+            ),
+            Exercise.mainLift(
+              name: 'Speed Deadlift',
+              liftType: LiftType.deadlift,
+              sets: 6,
+              reps: 2,
+              targetRPEMin: 6.0,
+              targetRPEMax: 7.0,
+              restSeconds: 60,
+              order: 3,
+              formCues: ['50-60% of max, reset each rep'],
+            ),
+            Exercise.accessory(
+              name: 'Box Jumps',
+              liftType: LiftType.boxJump,
+              sets: 3,
+              reps: 5,
+              restSeconds: 90,
+              order: 4,
+              notes: 'Focus on explosive hip extension',
+            ),
+          ],
+        ),
+
+        // SATURDAY - ACCESSORY DAY
+        DailyWorkout.trainingDay(
+          dayId: 'sat',
+          dayName: 'Saturday',
+          dayNumber: 6,
+          focus: 'Accessory & Weak Point Work',
+          exercises: [
+            Exercise.accessory(
+              name: 'Front Squat',
+              liftType: LiftType.frontSquat,
+              sets: 4,
+              reps: 6,
+              targetRPEMin: 7.0,
+              targetRPEMax: 8.0,
+              restSeconds: 150,
+              order: 1,
+            ),
+            Exercise.accessory(
+              name: 'Close-Grip Bench Press',
+              liftType: LiftType.benchPress,
+              sets: 4,
+              reps: 8,
+              targetRPEMin: 7.0,
+              targetRPEMax: 8.0,
+              restSeconds: 120,
+              order: 2,
+            ),
+            Exercise.accessory(
+              name: 'Deficit Deadlift',
+              liftType: LiftType.deadlift,
+              sets: 3,
+              reps: 5,
+              targetRPEMin: 7.5,
+              targetRPEMax: 8.5,
+              restSeconds: 180,
+              order: 3,
+              notes: 'Stand on 1-2 inch platform',
+            ),
+            Exercise.accessory(
+              name: 'Pull-ups',
+              liftType: LiftType.pullUp,
+              sets: 4,
+              reps: 8,
+              restSeconds: 90,
+              order: 4,
+            ),
+          ],
+        ),
+
+        // SUNDAY - REST
+        DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
+      ],
+    );
+  }
+
+  static ProgramWeek _createDUPDeloadWeek(int weekNumber) {
+    return ProgramWeek.deload(
+      weekNumber: weekNumber,
+      phase: Phase.deload,
+      dailyWorkouts: [
+        DailyWorkout.trainingDay(
+          dayId: 'mon',
+          dayName: 'Monday',
+          dayNumber: 1,
+          focus: 'Light Movement',
+          exercises: [
+            Exercise.accessory(
+              name: 'Back Squat',
+              liftType: LiftType.squat,
+              sets: 3,
+              reps: 5,
+              targetRPEMin: 5.0,
+              targetRPEMax: 6.0,
+              order: 1,
+              notes: '50% of normal weight',
+            ),
+            Exercise.accessory(
+              name: 'Bench Press',
+              liftType: LiftType.benchPress,
+              sets: 3,
+              reps: 5,
+              targetRPEMin: 5.0,
+              targetRPEMax: 6.0,
+              order: 2,
+              notes: '50% of normal weight',
+            ),
+          ],
+        ),
+        DailyWorkout.restDay(dayId: 'tue', dayName: 'Tuesday', dayNumber: 2),
+        DailyWorkout.restDay(dayId: 'wed', dayName: 'Wednesday', dayNumber: 3),
+        DailyWorkout.restDay(dayId: 'thu', dayName: 'Thursday', dayNumber: 4),
+        DailyWorkout.restDay(dayId: 'fri', dayName: 'Friday', dayNumber: 5),
+        DailyWorkout.restDay(dayId: 'sat', dayName: 'Saturday', dayNumber: 6),
+        DailyWorkout.restDay(dayId: 'sun', dayName: 'Sunday', dayNumber: 7),
+      ],
+    );
   }
 
   /// Get all powerlifting templates

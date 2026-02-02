@@ -6,6 +6,7 @@ import 'powerlifting_templates.dart';
 import 'crossfit_templates.dart';
 import 'bodybuilding_templates.dart';
 import 'general_fitness_templates.dart';
+import 'olympic_lifting_templates.dart';
 
 /// Helper class to get all templates for each sport
 class ProgramTemplateHelpers {
@@ -37,8 +38,11 @@ class ProgramTemplateHelpers {
 
   /// Get all Olympic Lifting templates
   static List<WorkoutProgram> getOlympicLiftingTemplates() {
-    // Olympic lifting templates not yet implemented
-    return [];
+    return [
+      OlympicLiftingTemplates.beginnerTechnique,
+      OlympicLiftingTemplates.intermediateStrength,
+      OlympicLiftingTemplates.competitionPeaking,
+    ];
   }
 
   /// Get all General Fitness templates
