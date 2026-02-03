@@ -9,18 +9,15 @@ import '../../core/errors/failure.dart';
 /// Concrete implementation of TrainingRepository using Hive for local storage
 /// Handles all data persistence operations
 class TrainingRepositoryImpl implements TrainingRepository {
-  final Box<Map<dynamic, dynamic>> _workoutBox;
   final Box<Map<dynamic, dynamic>> _programBox;
   final Box<Map<dynamic, dynamic>> _profileBox;
   final Box<Map<dynamic, dynamic>> _sessionBox;
 
   TrainingRepositoryImpl({
-    required Box<Map<dynamic, dynamic>> workoutBox,
     required Box<Map<dynamic, dynamic>> programBox,
     required Box<Map<dynamic, dynamic>> profileBox,
     required Box<Map<dynamic, dynamic>> sessionBox,
-  })  : _workoutBox = workoutBox,
-        _programBox = programBox,
+  })  : _programBox = programBox,
         _profileBox = profileBox,
         _sessionBox = sessionBox;
 

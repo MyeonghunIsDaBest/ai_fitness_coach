@@ -85,9 +85,7 @@ class RPEMath {
     if (!RPEThresholds.isValidRPE(rpe)) {
       return RPEFeedback.onTarget; // Default fallback
     }
-    
-    final targetMid = (targetMin + targetMax) / 2;
-    
+
     if (rpe < targetMin - 1.5) return RPEFeedback.tooEasy;
     if (rpe < targetMin) return RPEFeedback.belowTarget;
     if (rpe >= targetMin && rpe <= targetMax) return RPEFeedback.onTarget;

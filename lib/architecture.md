@@ -70,14 +70,8 @@ lib/
 │   │   ├── analytics_tab.dart
 │   │   └── profile_tab.dart
 │   │
-│   ├── home/
-│   │   ├── home_screen.dart
-│   │   ├── widgets/
-│   │   │   ├── quick_access_card.dart
-│   │   │   ├── recent_workouts_list.dart
-│   │   │   ├── stats_overview.dart
-│   │   │   └── sports_selection_grid.dart
-│   │   └── sport_dashboard_screen.dart
+│   ├── dashboard/  (lib/features/dashboard/)
+│   │   └── main_dashboard_screen.dart  # Main app dashboard
 │   │
 │   ├── programs/
 │   │   ├── programs_overview_screen.dart

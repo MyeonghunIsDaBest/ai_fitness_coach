@@ -26,8 +26,6 @@ class GetFatigueStatus {
     required double targetMin,
     required double targetMax,
   }) {
-    final targetMid = (targetMin + targetMax) / 2;
-
     if (RPEMath.isHighFatigue(avgRPE, targetMax)) {
       return FatigueStatus.high;
     } else if (RPEMath.isRecovering(avgRPE, targetMin)) {

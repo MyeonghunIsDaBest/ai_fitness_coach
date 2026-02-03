@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../core/enums/sport.dart';
 import 'program_week.dart';
-import 'athlete_profile.dart';
 
 /// Domain model representing a complete training program
 class WorkoutProgram extends Equatable {

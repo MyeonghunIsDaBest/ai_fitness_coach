@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../home/home_screen.dart';
+import '../../../features/dashboard/main_dashboard_screen.dart';
 import '../programs/programs_screen.dart';
 import '../progress/progress_screen.dart';
 import '../profile/profile_screen.dart';
@@ -36,7 +36,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   // Keep all tabs in memory for better performance (IndexedStack pattern)
   final List<Widget> _tabs = const [
-    HomeScreen(),
+    MainDashboardScreen(),
     ProgramsScreen(),
     ProgressScreen(),
     ProfileScreen(),

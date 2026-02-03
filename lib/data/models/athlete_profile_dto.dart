@@ -1,7 +1,4 @@
 import 'package:hive/hive.dart';
-import '../../core/enums/sport.dart';
-import '../../core/enums/lift_type.dart';
-import '../../domain/models/athlete_profile.dart';
 
 part 'athlete_profile_dto.g.dart';
 

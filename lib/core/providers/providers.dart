@@ -35,10 +35,6 @@ final hiveServiceProvider = Provider<HiveService>((ref) {
 });
 
 /// Hive box providers for type-safe access
-final workoutBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
-  return Hive.box<Map<dynamic, dynamic>>('workouts');
-});
-
 final programBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
   return Hive.box<Map<dynamic, dynamic>>('programs');
 });
@@ -62,7 +58,6 @@ final settingsBoxProvider = Provider<Box<Map<dynamic, dynamic>>>((ref) {
 /// Training repository - handles all data operations
 final trainingRepositoryProvider = Provider<TrainingRepository>((ref) {
   return TrainingRepositoryImpl(
-    workoutBox: ref.watch(workoutBoxProvider),
     programBox: ref.watch(programBoxProvider),
     profileBox: ref.watch(profileBoxProvider),
     sessionBox: ref.watch(sessionBoxProvider),
@@ -114,8 +109,8 @@ final selectedTimeRangeProvider =
 
 /// Onboarding completion status
 final onboardingCompleteProvider = StateProvider<bool>((ref) {
-  final profile = ref.watch(currentAthleteProfileProvider);
-  return profile != null;
+  final profileAsync = ref.watch(currentAthleteProfileProvider);
+  return profileAsync.valueOrNull != null;
 });
 
 /// Active workout session ID (null when not in workout)
